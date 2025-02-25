@@ -1,5 +1,6 @@
 package com.sharedule.app.service.user;
 import com.sharedule.app.dto.UserRegistrationDTO;
+import com.sharedule.app.dto.UserProfileUpdateDTO;
 import com.sharedule.app.model.user.Users;
 import com.sharedule.app.repository.user.UserRepo;
 import com.sharedule.app.util.user.ValidationUtil;
@@ -103,4 +104,94 @@ public class UserService {
         return users;
     }
 
+    public String logout(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtService.isTokenExpired(token)) {
+                System.out.println("DEBUG - Token is already expired");
+                return "Token is already expired";
+            }
+            System.out.println("DEBUG - User logged out successfully");
+            return "Logged out successfully";
+        }
+        System.out.println("WARN - Invalid token format");
+        return "Invalid token format";
+    }
+
+    public String deleteAccount(String username) {
+        System.out.println("DEBUG - Attempting to delete account for user: " + username);
+        
+        // Don't allow deletion of admin account
+        if ("admin".equals(username)) {
+            System.out.println("WARN - Attempted to delete admin account");
+            return "Cannot delete admin account through this endpoint";
+        }
+
+        Users user = repo.findByUsername(username);
+        if (user == null) {
+            System.out.println("WARN - User not found for deletion: " + username);
+            return "User not found";
+        }
+
+        try {
+            // Log user details before deletion (for audit purposes)
+            System.out.println("INFO - Deleting user account - Username: " + username + ", Email: " + user.getEmail());
+            
+            // Delete the user
+            repo.delete(user);
+            
+            // Log successful deletion
+            System.out.println("INFO - Successfully deleted user account and associated data for: " + username);
+            return "Account successfully deleted";
+        } catch (Exception e) {
+            // Log the error with stack trace
+            System.out.println("ERROR - Failed to delete user " + username + ": " + e.getMessage());
+            e.printStackTrace();
+            return "Failed to delete account: " + e.getMessage();
+        }
+    }
+
+    public String updateProfile(String username, UserProfileUpdateDTO profileUpdateDTO) {
+        System.out.println("DEBUG - Attempting to update profile for user: " + username);
+        
+        Users user = repo.findByUsername(username);
+        if (user == null) {
+            System.out.println("WARN - User not found for profile update: " + username);
+            return "User not found";
+        }
+
+        try {
+            // Validate and update email if provided
+            if (profileUpdateDTO.getEmail() != null && !profileUpdateDTO.getEmail().equals(user.getEmail())) {
+                String emailError = ValidationUtil.validateEmail(profileUpdateDTO.getEmail());
+                if (emailError != null) {
+                    System.out.println("WARN - Email validation failed: " + emailError);
+                    return emailError;
+                }
+
+                // Check if email is already taken
+                Users existingUserWithEmail = repo.findByEmail(profileUpdateDTO.getEmail());
+                if (existingUserWithEmail != null) {
+                    System.out.println("WARN - Email is already taken: " + profileUpdateDTO.getEmail());
+                    return "Email is already taken";
+                }
+
+                user.setEmail(profileUpdateDTO.getEmail());
+            }
+
+            // Update display picture if provided
+            if (profileUpdateDTO.getDisplayPicture() != null) {
+                user.setDisplayPicture(profileUpdateDTO.getDisplayPicture());
+            }
+
+            // Save the updated user
+            repo.save(user);
+            System.out.println("INFO - Successfully updated profile for user: " + username);
+            return "Profile successfully updated";
+        } catch (Exception e) {
+            System.out.println("ERROR - Failed to update profile for user " + username + ": " + e.getMessage());
+            e.printStackTrace();
+            return "Failed to update profile: " + e.getMessage();
+        }
+    }
 }
