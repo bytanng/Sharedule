@@ -161,6 +161,24 @@ public class UserService {
         }
 
         try {
+            // Validate and update username if provided
+            if (profileUpdateDTO.getUsername() != null && !profileUpdateDTO.getUsername().equals(user.getUsername())) {
+                String usernameError = ValidationUtil.validateUsername(profileUpdateDTO.getUsername());
+                if (usernameError != null) {
+                    System.out.println("WARN - Username validation failed: " + usernameError);
+                    return usernameError;
+                }
+
+                // Check if username is already taken
+                Users existingUserWithUsername = repo.findByUsername(profileUpdateDTO.getUsername());
+                if (existingUserWithUsername != null) {
+                    System.out.println("WARN - Username is already taken: " + profileUpdateDTO.getUsername());
+                    return "Username is already taken";
+                }
+
+                user.setUsername(profileUpdateDTO.getUsername());
+            }
+
             // Validate and update email if provided
             if (profileUpdateDTO.getEmail() != null && !profileUpdateDTO.getEmail().equals(user.getEmail())) {
                 String emailError = ValidationUtil.validateEmail(profileUpdateDTO.getEmail());
