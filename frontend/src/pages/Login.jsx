@@ -12,7 +12,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const user = { username: username, password };
+    const user = { username, password };
 
     setLoading(true);
 
