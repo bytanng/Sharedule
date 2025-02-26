@@ -59,8 +59,9 @@ export const logout = async (token) => {
     }
 };
 
-export const updateProfile = async (token, profile) => {
+export const updateProfile = async (profile) => {
     try {
+        let token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/user/profile`, {
         method: PUT_METHOD,
         headers: {
@@ -68,6 +69,7 @@ export const updateProfile = async (token, profile) => {
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(profile),
+        credentials: 'include'
         });
         return await response.text();
     } catch (error) {
