@@ -6,10 +6,18 @@ export const register = async (user) => {
         method: POST_METHOD,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
+        credentials: 'include'
         });
-        return await response.text();
+
+        const data = await response.text();
+
+        if (!data.includes("User successfully registered")) {
+            throw new Error(data);
+        }
+
+        return data
     } catch (error) {
-        return "Registration failed";
+        return "Registration failed: " + error.message;
     }
 };
 
