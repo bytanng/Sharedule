@@ -1,4 +1,3 @@
-import React from 'react';
 import { API_URL, POST_METHOD, PUT_METHOD, GET_METHOD, DELETE_METHOD } from './Constants'
 
 export const register = async (user) => {
@@ -7,10 +6,18 @@ export const register = async (user) => {
         method: POST_METHOD,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
+        credentials: 'include'
         });
-        return await response.text();
+
+        const data = await response.text();
+
+        if (!data.includes("User successfully registered")) {
+            throw new Error(data);
+        }
+
+        return data
     } catch (error) {
-        return "Registration failed";
+        return "Registration failed: " + error.message;
     }
 };
 
@@ -20,8 +27,15 @@ export const login = async (user) => {
         method: POST_METHOD,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
+        credentials: 'include'
         });
+
         const data = await response.text();
+
+        if (data.startsWith("Authentication error: ")) {
+            throw new Error();
+        }
+
         localStorage.setItem("token", data);
         return data;
     } catch (error) {

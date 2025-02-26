@@ -70,7 +70,7 @@ public class UserService {
         newUser.setPassword(hashedPassword);
         repo.save(newUser);
         System.out.println("DEBUG - Successfully registered user: " + newUser.getUsername());
-        return "User succesfully registered";
+        return "User successfully registered";
     }
 
     // public Users login(Users user){
