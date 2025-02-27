@@ -202,7 +202,7 @@ public class UserController {
 
             // Validate the new password
             String result = userService.resetPassword(passwordResetDTO);
-            if ("Password reset successful".equals(result)) {
+            if ("Password successfully reset".equals(result)) {
                 return ResponseEntity.ok("Your password has been successfully reset");
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

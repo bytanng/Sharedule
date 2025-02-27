@@ -215,6 +215,7 @@ public class UserService {
 
     public String generatePasswordResetToken(String email) {
         String resetToken = jwtService.generateToken(email);
+        System.out.println("INFO - Successfully generate reset token: " + resetToken);
         return resetToken;
     }
 }
