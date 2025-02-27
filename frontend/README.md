@@ -1,4 +1,3 @@
-# Sharedule
 ## Run Locally
 
 Install dependencies
