@@ -104,6 +104,13 @@ public class UserService {
         return users;
     }
 
+    public Users getUser(String token) {
+        String jwtToken = token.substring(7);
+        String usernameFromToken = jwtService.extractUserName(jwtToken);
+        Users user = repo.findByUsername(usernameFromToken);
+        return user;
+    }
+
     public String logout(String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
