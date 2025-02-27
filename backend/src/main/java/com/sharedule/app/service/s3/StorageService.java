@@ -32,7 +32,7 @@ public class StorageService {
         fileObj.delete();
         String fileUrl = s3Client.getUrl(bucketName, fileName).toString();
 
-        return "File uploaded successfully. URL: " + fileUrl;
+        return fileUrl;
 
     }
 

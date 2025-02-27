@@ -126,3 +126,29 @@ export const getUser = async () => {
     return "Failed to fetch user";
   }
 };
+
+export const uploadImage = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file); // Attach the file to FormData
+
+    const response = await fetch(`${API_URL}/file/upload`, {
+      method: "POST",
+      headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+      credentials: "include",
+  });
+
+  if (!response.ok) {
+      throw new Error(`Failed to upload image: ${await response.text()}`);
+  }
+
+    return await response.text(); // Backend returns the S3 URL as plain text
+  } catch (error) {
+    console.error("Upload Error:", error);
+    return "Failed to upload image";
+  }
+};
+
