@@ -1,5 +1,4 @@
 package com.sharedule.app.service.user;
-import com.sharedule.app.dto.PasswordResetDTO;
 import com.sharedule.app.dto.UserRegistrationDTO;
 import com.sharedule.app.dto.UserProfileUpdateDTO;
 import com.sharedule.app.model.user.Users;
@@ -26,10 +25,6 @@ public class UserService {
     private AuthenticationManager authManager;
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
-    public boolean emailExists(String email){
-        return repo.findByEmail(email) != null;
-    }
 
     public String register(UserRegistrationDTO userRegistrationDTO){
         System.out.println("DEBUG - Attempting to register user: " + userRegistrationDTO.getUsername());
@@ -76,19 +71,6 @@ public class UserService {
         repo.save(newUser);
         System.out.println("DEBUG - Successfully registered user: " + newUser.getUsername());
         return "User successfully registered";
-    }
-
-    public String resetPassword(PasswordResetDTO passwordResetDTO) {
-        Users user = repo.findByEmail(passwordResetDTO.getEmail());
-        if (user == null) {
-            return "No such user with email found";
-        }
-        String hashedPassword = encoder.encode(passwordResetDTO.getNewPassword());
-        System.out.println("DEBUG - Generated password hash: " + hashedPassword);
-        user.setPassword(hashedPassword);
-        repo.save(user);
-        System.out.println("DEBUG - Successfully reset password for user: " + user.getUsername());
-        return "Password successfully reset";
     }
 
     // public Users login(Users user){
@@ -236,11 +218,5 @@ public class UserService {
             e.printStackTrace();
             return "Failed to update profile: " + e.getMessage();
         }
-    }
-
-    public String generatePasswordResetToken(String email) {
-        String resetToken = jwtService.generateToken(email);
-        System.out.println("INFO - Successfully generate reset token: " + resetToken);
-        return resetToken;
     }
 }
