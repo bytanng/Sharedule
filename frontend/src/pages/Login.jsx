@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Footer, Navbar } from "../components";
-import { login } from "../utils/UserRoutes"
+import { login } from "../utils/UserRoutes";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -35,7 +35,7 @@ const Login = () => {
         <hr />
         <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
-            <form onSubmit = {handleLogin}>
+            <form onSubmit={handleLogin}>
               <div className="my-3">
                 <label for="display-4">Username</label>
                 <input
@@ -60,11 +60,31 @@ const Login = () => {
               </div>
               {errorMessage && <p className="text-danger">{errorMessage}</p>}
               <div className="my-3">
-                <p>New Here? <Link to="/register" className="text-decoration-underline text-info">Register</Link> </p>
-                <p>Forget Your Password? <Link to="/forgetpassword" className="text-decoration-underline text-info">Reset Here</Link> </p>
+                <p>
+                  New Here?{" "}
+                  <Link
+                    to="/register"
+                    className="text-decoration-underline text-info"
+                  >
+                    Register
+                  </Link>{" "}
+                </p>
+                <p>
+                  Forget Your Password?{" "}
+                  <Link
+                    to="/forgetpassword"
+                    className="text-decoration-underline text-info"
+                  >
+                    Reset Here
+                  </Link>{" "}
+                </p>
               </div>
               <div className="text-center">
-                <button className="my-2 mx-auto btn btn-dark" type="submit" disabled={loading}>
+                <button
+                  className="my-2 mx-auto btn btn-dark"
+                  type="submit"
+                  disabled={loading}
+                >
                   {loading ? "Logging in..." : "Login"}
                 </button>
               </div>
