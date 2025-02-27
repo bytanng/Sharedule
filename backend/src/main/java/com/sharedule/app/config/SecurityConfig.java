@@ -31,6 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         
         return http
+            .cors().and()
             .csrf(customizer -> customizer.disable())
             .authorizeHttpRequests(request -> request
             .requestMatchers("register", "login", "logout","user/profile","s3")

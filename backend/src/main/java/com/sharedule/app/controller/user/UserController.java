@@ -42,6 +42,12 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/profile")
+    public Users getUser(
+        @RequestHeader("Authorization") String token) {
+            return userService.getUser(token);
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
         String response = userService.logout(token);

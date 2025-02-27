@@ -41,7 +41,7 @@ root.render(
           <Route path="/forgetpassword" element={<ForgetPassword />} />
           <Route path="*" element={<PageNotFound />} />
           <Route path="/product/*" element={<PageNotFound />} />
-          <Route path="/profile/*" element={<Profile />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Provider>
     </ScrollToTop>
