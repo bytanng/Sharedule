@@ -13,9 +13,11 @@ const Profile = () => {
     const handleProfile = async () => {
       const result = await getUser();
       setData(result);
-      console.log(result);
-    };
+      setSelectedFile(result.displayPicture);
+      setImageUrl(result.displayPicture);
 
+    };
+    
     handleProfile();
   }, []);
 
@@ -35,10 +37,8 @@ const Profile = () => {
     };
 
     let token = localStorage.getItem("token");
-    console.log(token);
     const response = await updateProfile(token, profileData);
 
-    console.log("Profile updated:", response);
     alert("Profile updated");
 };
 
