@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.sharedule.app.service.email;
 
 import org.springframework.beans.factory.annotation.Value;
