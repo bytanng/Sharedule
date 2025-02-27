@@ -1,5 +1,4 @@
 package com.sharedule.app.controller.user;
-import com.sharedule.app.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,8 +11,6 @@ import com.sharedule.app.service.user.UserService;
 import com.sharedule.app.service.user.JWTService;
 import org.springframework.http.ResponseEntity;
 import com.sharedule.app.dto.UserRegistrationDTO;
-import com.sharedule.app.dto.PasswordResetRequestDTO;
-import com.sharedule.app.dto.PasswordResetDTO;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 
@@ -25,9 +22,6 @@ public class UserController {
     
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private EmailService emailService;
 
     @Autowired
     private JWTService jwtService;
@@ -162,61 +156,6 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("An unexpected error occurred while processing your request");
-        }
-    }
-
-    @PostMapping("/user/reset-password")
-    public ResponseEntity<String> requestPasswordReset(
-            @RequestBody PasswordResetRequestDTO resetRequest) {
-        try {
-            boolean userExists = userService.emailExists(resetRequest.getEmail());
-            if (!userExists) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Email address not found");
-            }
-
-            String resetToken = userService.generatePasswordResetToken(resetRequest.getEmail());
-
-            // URL subject to change when frontend reset page is done
-            String resetUrl = "http://localhost:9001/reset-password?token=" + resetToken;
-            String subject = "Sharedule Account Password Reset Request";
-            String body = "Click the following link to reset your password: " + resetUrl;
-            emailService.sendPasswordResetEmail(resetRequest.getEmail(), subject, body);
-
-            return ResponseEntity.ok("Password reset link has been sent to your email address.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while processing your request");
-        }
-    }
-
-    @PutMapping("/user/reset-password")
-    public ResponseEntity<String> resetPassword(
-            @RequestBody PasswordResetDTO passwordResetDTO) {
-        try {
-            if (jwtService.isTokenExpired(passwordResetDTO.getResetToken())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Reset token has expired");
-            }
-
-            // Verify the token and extract email or username
-            String email = jwtService.extractUserName(passwordResetDTO.getResetToken());
-            if (email == null || email.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Invalid or expired reset token");
-            }
-
-            // Validate the new password
-            String result = userService.resetPassword(passwordResetDTO);
-            if ("Password successfully reset".equals(result)) {
-                return ResponseEntity.ok("Your password has been successfully reset");
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("An error occurred while resetting your password");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred while processing your request");
         }
     }
 }
