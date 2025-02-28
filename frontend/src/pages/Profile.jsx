@@ -72,7 +72,6 @@ const Profile = () => {
                         alt="Profile"
                     />
                 )}
-
                 {/* File Input (Hidden) */}
                 <input
                     type="file"
@@ -81,13 +80,12 @@ const Profile = () => {
                     style={{ display: "none" }}
                     onChange={handleUploadImage} // Ensure function is correctly defined
                 />
-
                 {/* Upload Button */}
                 <label 
                     className="btn btn-secondary col-5 d-block align-items-center" 
                     htmlFor="fileInput"
                 >
-                    Upload Image
+                    Change Image
                 </label>
             </div>
             <div className="my-3">
