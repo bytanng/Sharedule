@@ -236,7 +236,7 @@ public class UserService {
             // Save the updated user
             repo.save(user);
             System.out.println("INFO - Successfully updated profile for user: " + username);
-            return "Profile successfully updated";
+            return "Profile successfully updated: " + jwtService.generateToken(user.getUsername());
         } catch (Exception e) {
             System.out.println("ERROR - Failed to update profile for user " + username + ": " + e.getMessage());
             e.printStackTrace();
