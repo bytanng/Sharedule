@@ -75,7 +75,16 @@ export const updateProfile = async (token, profile) => {
       },
       body: JSON.stringify(profile),
     });
-    return await response.text();
+
+    const successPrefix = "Profile successfully updated: ";
+
+    const data = await response.text();
+
+    if (!data.startsWith(successPrefix)) {
+      throw new Error();
+    }
+
+    localStorage.setItem("token", data.slice(successPrefix.length));
   } catch (error) {
     return "Profile update failed";
   }
@@ -110,13 +119,13 @@ export const getAllUsers = async () => {
   }
 };
 
-export const getUser = async () => {
+export const getUser = async (token) => {
   try {
     const response = await fetch(`${API_URL}/profile`, {
       method: GET_METHOD,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
       credentials: "include",
     });
