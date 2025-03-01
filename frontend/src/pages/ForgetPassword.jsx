@@ -8,12 +8,15 @@ const ForgetPassword = () => {
 
   const [email, setEmail] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChangeEmail = (e) => {
     setEmail(e.target.value);
   } 
 
   const handleReset = async (e) => {
+    setErrorMessage("");
+    setSuccessMessage("");
     e.preventDefault();
 
     if (!EMAIL_REGEX.test(email)) {
@@ -27,6 +30,7 @@ const ForgetPassword = () => {
       setErrorMessage(result);
     } else {
       setErrorMessage("");
+      setSuccessMessage("Reset link sent to email");
     }
   }
 
@@ -39,6 +43,11 @@ const ForgetPassword = () => {
         {errorMessage != "" && (
           <div>
             {errorMessage}
+          </div>
+        )}
+        {successMessage != "" && (
+          <div>
+            {successMessage}
           </div>
         )}
         <div class="row my-4 h-100">
