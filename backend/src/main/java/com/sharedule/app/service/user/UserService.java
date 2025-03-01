@@ -82,8 +82,8 @@ public class UserService {
     //     return repo.findByUsername(user.getUsername());
     // }
 
-    public String resetPassword(PasswordResetDTO passwordResetDTO) {
-        Users user = repo.findByEmail(passwordResetDTO.getEmail());
+    public String resetPassword(PasswordResetDTO passwordResetDTO, String email) {
+        Users user = repo.findByEmail(email);
         if (user == null) {
             return "No such user with email found";
         }
