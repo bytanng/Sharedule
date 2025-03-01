@@ -138,11 +138,14 @@ public class UserController {
 
             // Attempt to update the profile
             String result = userService.updateProfile(username, profileUpdateDTO);
+
+            // Handle successful response
+            if (result.startsWith("Profile successfully updated: ")) {
+                return ResponseEntity.ok(result);
+            }
             
-            // Handle different response cases
+            // Handle different failed response cases
             switch (result) {
-                case "Profile successfully updated":
-                    return ResponseEntity.ok(result);
                 case "User not found":
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Account not found");

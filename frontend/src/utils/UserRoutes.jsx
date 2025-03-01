@@ -75,19 +75,28 @@ export const updateProfile = async (token, profile) => {
       },
       body: JSON.stringify(profile),
     });
-    return await response.text();
+
+    const successPrefix = "Profile successfully updated: ";
+
+    const data = await response.text();
+
+    if (!data.startsWith(successPrefix)) {
+      throw new Error();
+    }
+
+    localStorage.setItem("token", data.slice(successPrefix.length));
   } catch (error) {
     return "Profile update failed";
   }
 };
 
-export const deleteAccount = async (token) => {
+export const deleteAccount = async (token,confirmation) => {
   try {
     const response = await fetch(`${API_URL}/user/delete`, {
       method: DELETE_METHOD,
       headers: {
         Authorization: `Bearer ${token}`,
-        Confirmation: "CONFIRM_DELETE",
+        Confirmation: confirmation,
       },
     });
     const data = await response.text();
@@ -110,13 +119,13 @@ export const getAllUsers = async () => {
   }
 };
 
-export const getUser = async () => {
+export const getUser = async (token) => {
   try {
     const response = await fetch(`${API_URL}/profile`, {
       method: GET_METHOD,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
       credentials: "include",
     });
@@ -124,6 +133,31 @@ export const getUser = async () => {
     return await response.json();
   } catch (error) {
     return "Failed to fetch user";
+  }
+};
+
+export const uploadImage = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file); // Attach the file to FormData
+
+    const response = await fetch(`${API_URL}/file/upload`, {
+      method: "POST",
+      headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+      credentials: "include",
+  });
+
+  if (!response.ok) {
+      throw new Error(`Failed to upload image: ${await response.text()}`);
+  }
+
+    return await response.text(); // Backend returns the S3 URL as plain text
+  } catch (error) {
+    console.error("Upload Error:", error);
+    return "Failed to upload image";
   }
 };
 

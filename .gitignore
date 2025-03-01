@@ -58,3 +58,4 @@ yarn-debug.log*
 yarn-error.log*
 ### Environment Variables ###
 .env
+backend/src/main/resources/application.properties
