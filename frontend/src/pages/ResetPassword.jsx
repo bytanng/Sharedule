@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { resetPassword } from '../utils/UserRoutes'
 import { useParams } from "react-router-dom";
+import { Footer } from '../components';
 
 function ResetPassword() {
 

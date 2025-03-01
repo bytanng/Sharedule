@@ -19,10 +19,10 @@ import {
   PageNotFound,
   ForgetPassword,
   Profile,
-  ResetPassword
 } from "./pages";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
+import ResetPassword from "./pages/ResetPassword";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
