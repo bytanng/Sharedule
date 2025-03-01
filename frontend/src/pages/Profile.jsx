@@ -8,6 +8,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    displayPicture:null
   });
   const [imageUrl, setImageUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -30,7 +31,7 @@ const Profile = () => {
     setIsEditing(true);
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -39,40 +40,34 @@ const Profile = () => {
     const freshUser = await getUser(localStorage.getItem("token"));
     setData(freshUser);
     setIsEditing(false);
-  };
-  const handleEditProfile = async () => {
-    let fileUrl = imageUrl; // Keep previous image if no new file is uploaded
-
-    // Only upload if user selected a new file
-    if (selectedFile) {
-        fileUrl = await uploadImage(selectedFile);
-        setImageUrl(fileUrl);
-    }
-
-    const profileData = {
-        username: data.username,
-        email: data.email,
-        displayPicture: fileUrl, // Send S3 URL
-    };
-
-    let token = localStorage.getItem("token");
-    const response = await updateProfile(token, profileData);
-
     alert("Profile updated");
-};
+
+  };
+
 
   
-  const handleUploadImage = (event) => {
+  const handleUploadImage = async (event) => {
     const file = event.target.files[0];
-
     if (!file) {
         console.error("No file selected");
         return;
     }
 
     setSelectedFile(file); // Store file temporarily
-    setImageUrl(URL.createObjectURL(file)); // Show preview
+    setImageUrl(URL.createObjectURL(file)); // Show preview immediately
+
+    try {
+        const uploadedImageUrl = await uploadImage(file);
+        setImageUrl(uploadedImageUrl);
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            displayPicture: uploadedImageUrl
+        }));
+    } catch (error) {
+        console.error("Error uploading image:", error);
+    }
 };
+
 
   return (
     <>
@@ -95,9 +90,10 @@ const Profile = () => {
                 <input
                     type="file"
                     id="fileInput"
+                    name="displayPicture"
                     accept="image/*"
                     style={{ display: "none" }}
-                    onChange={handleUploadImage} // Ensure function is correctly defined
+                    onChange={handleUploadImage}
                 />
                 {/* Upload Button */}
                 <label 
