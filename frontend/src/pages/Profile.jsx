@@ -79,7 +79,7 @@ const Profile = () => {
   };
 
   const handleConfirmDelete = () => {
-    deleteAccount(localStorage.getItem("token"),true);
+    deleteAccount(localStorage.getItem("token"), "CONFIRM_DELETE");    
     setModalOpen(false);
     alert("Account deleted")
     navigate("/");
