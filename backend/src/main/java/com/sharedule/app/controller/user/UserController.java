@@ -181,7 +181,7 @@ public class UserController {
             String resetToken = userService.generatePasswordResetToken(resetRequest.getEmail());
 
             // URL subject to change when frontend reset page is done
-            String resetUrl = "http://localhost:9001/reset-password?token=" + resetToken;
+            String resetUrl = "http://localhost:3000/resetpassword/" + resetToken;
             String subject = "Sharedule Account Password Reset Request";
             String body = "Click the following link to reset your password: " + resetUrl;
             emailService.sendPasswordResetEmail(resetRequest.getEmail(), subject, body);
@@ -210,7 +210,7 @@ public class UserController {
             }
 
             // Validate the new password
-            String result = userService.resetPassword(passwordResetDTO);
+            String result = userService.resetPassword(passwordResetDTO, email);
             if ("Password successfully reset".equals(result)) {
                 return ResponseEntity.ok("Your password has been successfully reset");
             } else {
