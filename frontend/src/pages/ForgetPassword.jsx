@@ -64,7 +64,7 @@ const ForgetPassword = () => {
                 />
               </div>
               <div className="text-center">
-                <button class="my-2 mx-auto btn btn-dark" onClick={handleReset} type="submit" disabled={email != null || email != ""}>
+                <button class="my-2 mx-auto btn btn-dark" onClick={handleReset} type="submit" disabled={email == null || email == ""}>
                     Reset
                 </button>
               </div>

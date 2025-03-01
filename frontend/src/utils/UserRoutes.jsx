@@ -164,7 +164,7 @@ export const uploadImage = async (file) => {
 export const requestPasswordReset = async (email) => {
   try {
     const response = await fetch(`${API_URL}/user/reset-password`, {
-      method: "POST",
+      method: POST_METHOD,
       headers: {
         "Content-Type": "application/json",
       },
@@ -173,5 +173,20 @@ export const requestPasswordReset = async (email) => {
     return await response.text();
   } catch (error) {
     return "Password reset request failed";
+  }
+};
+
+export const resetPassword = async (resetPasswordObject) => {
+  try {
+    const response = await fetch(`${API_URL}/user/reset-password`, {
+      method: PUT_METHOD,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ resetPasswordObject }),
+    });
+    return await response.text();
+  } catch (error) {
+    return "Password reset failed";
   }
 };
