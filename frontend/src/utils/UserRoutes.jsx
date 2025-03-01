@@ -126,3 +126,18 @@ export const getUser = async () => {
     return "Failed to fetch user";
   }
 };
+
+export const requestPasswordReset = async (email) => {
+  try {
+    const response = await fetch(`${API_URL}/user/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+    return await response.text();
+  } catch (error) {
+    return "Password reset request failed";
+  }
+};
