@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Footer, Navbar } from "../components";
-import { getUser,uploadImage,updateProfile } from "../utils/UserRoutes";
+import { getUser,uploadImage,updateProfile,deleteAccount } from "../utils/UserRoutes";
+import DeleteModal from "../components/DeleteModal";
 
 const Profile = () => {
   const [data, setData] = useState("");
@@ -12,7 +14,10 @@ const Profile = () => {
   });
   const [imageUrl, setImageUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isModalOpen, setModalOpen] = useState(false);
 
+  const navigate = useNavigate();
+  
   useEffect(() => {
     const handleProfile = async () => {
       const result = await getUser(localStorage.getItem("token"));
@@ -66,9 +71,19 @@ const Profile = () => {
     } catch (error) {
         console.error("Error uploading image:", error);
     }
-};
+  };
 
 
+  const handleDeleteClick = () => {
+    setModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteAccount(localStorage.getItem("token"),true);
+    setModalOpen(false);
+    alert("Account deleted")
+    navigate("/");
+  }
   return (
     <>
       <Navbar />
@@ -134,7 +149,7 @@ const Profile = () => {
             <div className="text-center">
               {isEditing ? (
                 <button
-                  className="my-2 mx-auto btn btn-danger"
+                  className="my-2 mx-auto btn btn-primary"
                   onClick={handleSubmit}
                 >
                   Submit
@@ -147,10 +162,21 @@ const Profile = () => {
                   Edit Profile
                 </button>
               )}
+              <button
+                className="my-2 ms-2 btn btn-danger"
+                onClick={handleDeleteClick}
+              >
+                Delete Account
+              </button>
             </div>
           </div>
         </div>
       </div>
+      <DeleteModal 
+        isOpen={isModalOpen} 
+        onClose={() => setModalOpen(false)} 
+        onConfirm={handleConfirmDelete} 
+      />
       <Footer />
     </>
   );

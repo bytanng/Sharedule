@@ -90,13 +90,13 @@ export const updateProfile = async (token, profile) => {
   }
 };
 
-export const deleteAccount = async (token) => {
+export const deleteAccount = async (token,confirmation) => {
   try {
     const response = await fetch(`${API_URL}/user/delete`, {
       method: DELETE_METHOD,
       headers: {
         Authorization: `Bearer ${token}`,
-        Confirmation: "CONFIRM_DELETE",
+        Confirmation: confirmation,
       },
     });
     const data = await response.text();
