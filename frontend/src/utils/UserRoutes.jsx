@@ -59,6 +59,11 @@ export const logout = async (token) => {
       },
     });
     localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    
+    // Trigger storage event for components to react
+    window.dispatchEvent(new Event('storage'));
+    
     return await response.text();
   } catch (error) {
     return "Logout failed";
@@ -76,16 +81,30 @@ export const updateProfile = async (token, profile) => {
       body: JSON.stringify(profile),
     });
 
+    const data = await response.text();
+    console.log("Profile update response:", data); // Debug log to see exact response
     const successPrefix = "Profile successfully updated: ";
 
-    const data = await response.text();
-
-    if (!data.startsWith(successPrefix)) {
-      throw new Error();
+    if (data.startsWith(successPrefix)) {
+      // Success case - update token and return success
+      localStorage.setItem("token", data.slice(successPrefix.length));
+      return "Profile updated successfully";
+    } else {
+      // Handle specific error messages from backend
+      if (data.includes("Username is already taken")) {
+        return "Username is already taken";
+      } else if (data.includes("Email is already taken") || data.includes("This email is already registered")) {
+        return "Email is already in use";
+      } else if (data.includes("Invalid email format") || data.includes("Email domain not supported")) {
+        return data; // Return the exact error message for email validation issues
+      } else {
+        // Generic error for other cases
+        console.error("Unhandled profile update error:", data);
+        return "Profile update failed: " + data;
+      }
     }
-
-    localStorage.setItem("token", data.slice(successPrefix.length));
   } catch (error) {
+    console.error("Profile update error:", error);
     return "Profile update failed";
   }
 };
@@ -176,14 +195,14 @@ export const requestPasswordReset = async (email) => {
   }
 };
 
-export const resetPassword = async (resetPasswordObject) => {
+export const resetPassword = async (resetPasswordDTO) => {
   try {
     const response = await fetch(`${API_URL}/user/reset-password`, {
       method: PUT_METHOD,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ resetPasswordObject }),
+      body: JSON.stringify(resetPasswordDTO),
     });
     return await response.text();
   } catch (error) {

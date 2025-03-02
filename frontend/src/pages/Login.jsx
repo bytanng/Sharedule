@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Footer, Navbar } from "../components";
 import { login } from "../utils/UserRoutes";
 
@@ -8,6 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,6 +16,7 @@ const Login = () => {
     const user = { username, password };
 
     setLoading(true);
+    setErrorMessage("");
 
     const result = await login(user);
 
@@ -23,7 +25,14 @@ const Login = () => {
     if (result === "Login failed") {
       setErrorMessage("Invalid username or password");
     } else {
-      setErrorMessage("");
+      // Store username in localStorage for navbar display
+      localStorage.setItem('username', username);
+      
+      // Trigger a storage event so other components (like Navbar) can react
+      window.dispatchEvent(new Event('storage'));
+      
+      // Navigate to homepage
+      navigate('/');
     }
   };
 

@@ -151,7 +151,7 @@ public class UserController {
                         .body("Account not found");
                 case "Email is already taken":
                     return ResponseEntity.badRequest()
-                        .body("This email is already registered with another account");
+                        .body("Email is already taken");
                 default:
                     if (result.contains("Invalid email format") || result.contains("Email domain not supported")) {
                         return ResponseEntity.badRequest().body(result);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Footer, Navbar } from "../components";
 import { getUser,uploadImage,updateProfile,deleteAccount } from "../utils/UserRoutes";
 import DeleteModal from "../components/DeleteModal";
@@ -15,6 +15,10 @@ const Profile = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [originalFormData, setOriginalFormData] = useState({});
+  const [hasChanges, setHasChanges] = useState(false);
 
   const navigate = useNavigate();
   
@@ -23,32 +27,94 @@ const Profile = () => {
       const result = await getUser(localStorage.getItem("token"));
       setData(result);
       setFormData(result);
+      setOriginalFormData(result);
       setSelectedFile(result.displayPicture);
       setImageUrl(result.displayPicture);
     };
 
-    
-    
     handleProfile();
   }, []);
 
+  // Check if form data has changed
+  useEffect(() => {
+    if (isEditing) {
+      const changed = 
+        formData.username !== originalFormData.username ||
+        formData.email !== originalFormData.email ||
+        formData.displayPicture !== originalFormData.displayPicture;
+      
+      setHasChanges(changed);
+    }
+  }, [formData, originalFormData, isEditing]);
+
   const handleEdit = () => {
     setIsEditing(true);
+    setErrorMessage("");
+    setSuccessMessage("");
   };
 
   const handleChange = async (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrorMessage("");
+  };
+
+  const validateForm = () => {
+    // Username validation
+    if (formData.username.length < 6 || formData.username.length > 20) {
+      setErrorMessage("Username must be between 6 and 20 characters");
+      return false;
+    }
+
+    // Email validation
+    const validDomains = ["gmail.com", "outlook.com", "hotmail.com", "yahoo.com"];
+    const emailParts = formData.email.split('@');
+    
+    if (emailParts.length !== 2 || !validDomains.includes(emailParts[1].toLowerCase())) {
+      setErrorMessage("Email must be from gmail.com, outlook.com, hotmail.com, or yahoo.com");
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async () => {
-    await updateProfile(localStorage.getItem("token"), formData);
-    const freshUser = await getUser(localStorage.getItem("token"));
-    setData(freshUser);
-    setIsEditing(false);
-    alert("Profile updated");
+    // Clear previous messages
+    setErrorMessage("");
+    setSuccessMessage("");
 
+    // Check if there are any changes
+    if (!hasChanges) {
+      setErrorMessage("No changes detected");
+      return;
+    }
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      const result = await updateProfile(localStorage.getItem("token"), formData);
+      
+      if (result === "Profile updated successfully") {
+        const freshUser = await getUser(localStorage.getItem("token"));
+        setData(freshUser);
+        setOriginalFormData(freshUser);
+        setIsEditing(false);
+        setSuccessMessage("Profile updated successfully!");
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessage("");
+        }, 3000);
+      } else {
+        // Display specific error message from the backend
+        setErrorMessage(result);
+      }
+    } catch (error) {
+      setErrorMessage("Failed to update profile. Please try again.");
+    }
   };
-
 
   
   const handleUploadImage = async (event) => {
@@ -90,6 +156,16 @@ const Profile = () => {
       <div className="container my-3 py-3">
         <h1 className="text-center">My Profile</h1>
         <hr />
+        {successMessage && (
+          <div className="alert alert-success text-center" role="alert">
+            {successMessage}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="alert alert-danger text-center" role="alert">
+            {errorMessage}
+          </div>
+        )}
         <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
             <div className="form my-3">
@@ -112,8 +188,9 @@ const Profile = () => {
                 />
                 {/* Upload Button */}
                 <label 
-                    className="btn btn-secondary col-5 d-block align-items-center" 
-                    htmlFor="fileInput"
+                    className={`btn btn-secondary col-5 d-block align-items-center ${!isEditing ? 'disabled' : ''}`}
+                    htmlFor={isEditing ? "fileInput" : ""}
+                    style={{ cursor: isEditing ? 'pointer' : 'not-allowed' }}
                 >
                     Change Image
                 </label>
@@ -145,6 +222,14 @@ const Profile = () => {
               ) : (
                 <p>{data.email}</p>
               )}
+            </div>
+            <div className="my-3">
+              <Link 
+                to="/forgetpassword" 
+                className="text-decoration-underline text-info"
+              >
+                Change Password
+              </Link>
             </div>
             <div className="text-center">
               {isEditing ? (
