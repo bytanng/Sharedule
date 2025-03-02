@@ -1,11 +1,31 @@
-import React, { useEffect } from 'react'
-import { NavLink } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 const Navbar = () => {
     const state = useSelector(state => state.handleCart)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [username, setUsername] = useState('User')
+    const navigate = useNavigate();
     
     useEffect(() => {
+        //check if user is logged in
+        const checkLoginStatus = () => {
+            const token = localStorage.getItem('token')
+            setIsLoggedIn(!!token)
+        }
+
+        //get username from localstorage
+        if(localStorage.getItem('username')){
+            setUsername(localStorage.getItem('username'))
+        }
+
+        //check on component mount
+        checkLoginStatus()
+
+        //event listener to check when localStorage changes
+        window.addEventListener('storage', checkLoginStatus);
+
         // Add hover functionality to dropdowns
         const dropdownElements = document.querySelectorAll('.dropdown');
         
@@ -21,12 +41,20 @@ const Navbar = () => {
         
         // Cleanup event listeners on component unmount
         return () => {
+            window.removeEventListener('storage', checkLoginStatus)
             dropdownElements.forEach(dropdown => {
                 dropdown.removeEventListener('mouseenter', () => {});
                 dropdown.removeEventListener('mouseleave', () => {});
             });
         };
     }, []);
+
+    const handleLogout = () =>{
+        localStorage.removeItem('token')
+        localStorage.removeItem('username')
+        setIsLoggedIn(false)
+        navigate('/')
+    }
     
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light py-3 sticky-top">
@@ -52,7 +80,7 @@ const Navbar = () => {
                         </li>
                     </ul>
                     <div className="buttons text-center">
-                        <NavLink to="/login" className="btn btn-outline-dark m-2"><i className="fa fa-sign-in-alt mr-1"></i> Login</NavLink>
+                        {/* <NavLink to="/login" className="btn btn-outline-dark m-2"><i className="fa fa-sign-in-alt mr-1"></i> Login</NavLink>
                         <NavLink to="/register" className="btn btn-outline-dark m-2"><i className="fa fa-user-plus mr-1"></i> Register</NavLink>
                         <div className="dropdown d-inline-block">
                             <button className="btn btn-outline-dark m-2 dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -63,7 +91,24 @@ const Navbar = () => {
                                 <li><hr className="dropdown-divider" /></li>
                                 <li><NavLink className="dropdown-item" to="/logout"><i className="fa fa-sign-out-alt me-2"></i>Log Out</NavLink></li>
                             </ul>
-                        </div>
+                        </div> */}
+                        {isLoggedIn ? (
+                            <div className="dropdown d-inline-block">
+                                <button className="btn btn-outline-dark m-2 dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i className="fa fa-user mr-1"></i> {username}
+                                </button>
+                                <ul className="dropdown-menu" aria-labelledby="userDropdown">
+                                    <li><NavLink className="dropdown-item" to="/profile"><i className="fa fa-user-circle me-2"></i>My Profile</NavLink></li>
+                                    <li><hr className="dropdown-divider" /></li>
+                                    <li><button className="dropdown-item" onClick={handleLogout}><i className="fa fa-sign-out-alt me-2"></i>Log Out</button></li>
+                                </ul>
+                            </div>
+                        ) : (
+                            <>
+                                <NavLink to="/login" className="btn btn-outline-dark m-2"><i className="fa fa-sign-in-alt mr-1"></i> Login</NavLink>
+                                <NavLink to="/register" className="btn btn-outline-dark m-2"><i className="fa fa-user-plus mr-1"></i> Register</NavLink>
+                            </>
+                        )}
                     </div>
                 </div>
 

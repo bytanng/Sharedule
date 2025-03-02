@@ -7,15 +7,43 @@ const Register = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const validateForm = () => {
+        // Reset error message
+        setErrorMessage("");
+
+        // Check if passwords match
+        if (password !== confirmPassword) {
+            setErrorMessage("Passwords do not match");
+            return false;
+        }
+
+        // Check password length
+        if (password.length < 3) {
+            setErrorMessage("Password must be at least 3 characters long");
+            return false;
+        }
+
+        return true;
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
 
+        // Validate form before submission
+        if (!validateForm()) {
+            return;
+        }
+
         const user = { username, email, password };
 
         setLoading(true);
+        setErrorMessage("");
+        setSuccessMessage("");
 
         const result = await register(user);
 
@@ -24,7 +52,12 @@ const Register = () => {
         if (result.startsWith("Registration failed: ")) {
             setErrorMessage(result);
         } else {
-            setErrorMessage("");
+            setSuccessMessage("Your Registration has been successful, click here to login");
+            // Reset form fields after successful registration
+            setUsername("");
+            setEmail("");
+            setPassword("");
+            setConfirmPassword("");
         }
     };
 
@@ -35,52 +68,84 @@ const Register = () => {
             <div className="container my-3 py-3">
                 <h1 className="text-center">Register</h1>
                 <hr />
-                <div class="row my-4 h-100">
+                <div className="row my-4 h-100">
                     <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
-                        <form onSubmit = {handleRegister}>
-                            <div className="form my-3">
-                                <label for="Name">Username</label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    id="Name"
-                                    placeholder="Enter Your Username"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                />
+                        {successMessage ? (
+                            <div className="alert alert-success text-center">
+                                {successMessage.split("click here")[0]}
+                                <br/>
+                                <Link to="/login" className="text-decoration-underline fw-bold">
+                                    Click Here to Login
+                                </Link>
                             </div>
-                            <div className="form my-3">
-                                <label for="Email">Email address</label>
-                                <input
-                                    type="email"
-                                    class="form-control"
-                                    id="Email"
-                                    placeholder="name@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                            <div className="form  my-3">
-                                <label for="Password">Password</label>
-                                <input
-                                    type="password"
-                                    class="form-control"
-                                    id="Password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
-                            {errorMessage && <p className="text-danger">{errorMessage}</p>}
-                            <div className="my-3">
-                                <p>Already has an account? <Link to="/login" className="text-decoration-underline text-info">Login</Link> </p>
-                            </div>
-                            <div className="text-center">
-                                <button class="my-2 mx-auto btn btn-dark" type="submit" disabled={loading}>
-                                {loading ? "Registering..." : "Register"}
-                                </button>
-                            </div>
-                        </form>
+                        ) : (
+                            <form onSubmit={handleRegister}>
+                                <div className="form my-3">
+                                    <label htmlFor="Name">Username</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="Name"
+                                        placeholder="Enter Your Username"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form my-3">
+                                    <label htmlFor="Email">Email address</label>
+                                    <input
+                                        type="email"
+                                        className="form-control"
+                                        id="Email"
+                                        placeholder="name@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form my-3">
+                                    <label htmlFor="Password">Password</label>
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        id="Password"
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                    <small className="form-text text-muted">
+                                        Password must be at least 3 characters long
+                                    </small>
+                                </div>
+                                <div className="form my-3">
+                                    <label htmlFor="ConfirmPassword">Confirm Password</label>
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        id="ConfirmPassword"
+                                        placeholder="Confirm Password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                {errorMessage && (
+                                    <div className="alert alert-danger" role="alert">
+                                        {errorMessage}
+                                    </div>
+                                )}
+                                <div className="my-3">
+                                    <p>Already has an account? <Link to="/login" className="text-decoration-underline text-info">Login</Link> </p>
+                                </div>
+                                <div className="text-center">
+                                    <button className="my-2 mx-auto btn btn-dark" type="submit" disabled={loading || !username || !email || !password || !confirmPassword}>
+                                    {loading ? "Registering..." : "Register"}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
                 </div>
             </div>

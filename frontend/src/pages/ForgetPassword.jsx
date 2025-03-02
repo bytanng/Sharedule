@@ -14,13 +14,29 @@ const ForgetPassword = () => {
     setEmail(e.target.value);
   } 
 
+  const validateEmail = (email) => {
+    if (!EMAIL_REGEX.test(email)) {
+      return false;
+    }
+
+    // Check for specific domains
+    const validDomains = ["gmail.com", "outlook.com", "hotmail.com", "yahoo.com"];
+    const emailParts = email.split('@');
+    
+    if (emailParts.length !== 2 || !validDomains.includes(emailParts[1].toLowerCase())) {
+      return false;
+    }
+
+    return true;
+  };
+
   const handleReset = async (e) => {
     setErrorMessage("");
     setSuccessMessage("");
     e.preventDefault();
 
-    if (!EMAIL_REGEX.test(email)) {
-      setErrorMessage("Please enter a valid email");
+    if (!validateEmail(email)) {
+      setErrorMessage("Please enter a valid email from gmail.com, outlook.com, hotmail.com, or yahoo.com");
       return;
     }
 
@@ -30,7 +46,7 @@ const ForgetPassword = () => {
       setErrorMessage(result);
     } else {
       setErrorMessage("");
-      setSuccessMessage("Reset link sent to email");
+      setSuccessMessage("If your account exists, a reset link will be sent to your email");
     }
   }
 
@@ -40,31 +56,34 @@ const ForgetPassword = () => {
       <div className="container my-3 py-3">
         <h1 className="text-center">Reset Password</h1>
         <hr />
-        {errorMessage != "" && (
-          <div>
-            {errorMessage}
-          </div>
-        )}
-        {successMessage != "" && (
-          <div>
+        {successMessage !== "" && (
+          <div className="alert alert-success text-center" role="alert">
             {successMessage}
           </div>
         )}
-        <div class="row my-4 h-100">
+        {errorMessage !== "" && (
+          <div className="alert alert-danger text-center" role="alert">
+            {errorMessage}
+          </div>
+        )}
+        <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
             <form>
-              <div class="my-3">
-                <label for="display-4">Email address</label>
+              <div className="my-3">
+                <label htmlFor="floatingInput">Email address</label>
                 <input
                   type="email"
-                  class="form-control"
+                  className="form-control"
                   id="floatingInput"
                   placeholder="name@example.com"
                   onChange={handleChangeEmail}
                 />
+                <small className="form-text text-muted">
+                  Please enter the email you used for your account.
+                </small>
               </div>
               <div className="text-center">
-                <button class="my-2 mx-auto btn btn-dark" onClick={handleReset} type="submit" disabled={email == null || email == ""}>
+                <button className="my-2 mx-auto btn btn-dark" onClick={handleReset} type="submit" disabled={email == null || email == ""}>
                     Send Email
                 </button>
               </div>
