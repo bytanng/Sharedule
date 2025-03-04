@@ -12,4 +12,5 @@ public class UserProfileUpdateDTO {
     private String username;
     private String email;
     private String displayPicture;
-} 
+
+}
