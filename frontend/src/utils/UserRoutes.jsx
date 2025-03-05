@@ -209,3 +209,34 @@ export const resetPassword = async (resetPasswordDTO) => {
     return "Password reset failed";
   }
 };
+
+export const createItem = async (itemData) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`${API_URL}/create-item`, {
+      method: POST_METHOD,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(itemData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(errorData);
+    }
+
+    const data = await response.json();
+    return { success: true, data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error.message || 'Failed to create item' 
+    };
+  }
+};
