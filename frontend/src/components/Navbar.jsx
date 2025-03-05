@@ -73,9 +73,14 @@ const Navbar = () => {
                             <NavLink className="nav-link" to="/product">Products/Services</NavLink>
                         </li>
                         {isLoggedIn && (
-                            <li className="nav-item">
-                                <NavLink className="nav-link" to="/create-listing">Create Listing</NavLink>
-                            </li>
+                            <>
+                                <li className="nav-item">
+                                    <NavLink className="nav-link" to="/create-listing">Create Listing</NavLink>
+                                </li>
+                                <li className="nav-item">
+                                    <NavLink className="nav-link" to="/view-listings">My Listings</NavLink>
+                                </li>
+                            </>
                         )}
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/about">About</NavLink>

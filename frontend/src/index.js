@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 import CreateListing from "./components/CreateListing";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ViewListings from "./components/ViewListings";
 
 import {
   Home,
@@ -43,6 +44,14 @@ root.render(
             element={
               <ProtectedRoute>
                 <CreateListing />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/view-listings" 
+            element={
+              <ProtectedRoute>
+                <ViewListings />
               </ProtectedRoute>
             } 
           />

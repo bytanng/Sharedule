@@ -8,6 +8,8 @@ import com.sharedule.app.repository.item.ItemRepo;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 public class ItemService {
     @Autowired
@@ -46,5 +48,9 @@ public class ItemService {
         item.setUser(user);
         
         return repo.save(item);
+    }
+
+    public List<Item> getItemsByUser(Users user) {
+        return repo.findByUser(user);
     }
 }

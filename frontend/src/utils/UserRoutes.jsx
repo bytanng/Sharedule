@@ -240,3 +240,33 @@ export const createItem = async (itemData) => {
     };
   }
 };
+
+
+
+export const getUserItems = async () => {
+  const token = localStorage.getItem("token"); // Retrieve token from localStorage
+
+  if (!token) {
+      console.error("No authentication token found");
+      return null;
+  }
+
+  try {
+      const response = await fetch(`${API_URL}/user/items`, {
+          method: "GET",
+          headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+          }
+      });
+
+      if (!response.ok) {
+          throw new Error(`Error: ${response.status} - ${await response.text()}`);
+      }
+
+      return await response.json();
+  } catch (error) {
+      console.error("Failed to fetch user items:", error.message);
+      return null;
+  }
+};
