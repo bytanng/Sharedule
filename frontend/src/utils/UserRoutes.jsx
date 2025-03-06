@@ -17,7 +17,7 @@ export const register = async (user) => {
 
     const data = await response.text();
 
-    if (!data.includes("User successfully registered")) {
+    if (!data.includes("Users successfully registered")) {
       throw new Error(data);
     }
 
