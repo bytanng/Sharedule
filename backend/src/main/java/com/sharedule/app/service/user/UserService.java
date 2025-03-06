@@ -1,5 +1,9 @@
 package com.sharedule.app.service.user;
+
 import com.sharedule.app.dto.UserRegistrationDTO;
+import com.sharedule.app.exception.BackendErrorException;
+import com.sharedule.app.exception.ExistsInRepoException;
+import com.sharedule.app.exception.ValidationException;
 import com.sharedule.app.dto.UserProfileUpdateDTO;
 import com.sharedule.app.dto.PasswordResetDTO;
 import com.sharedule.app.factory.UserFactory;
@@ -29,45 +33,49 @@ public class UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public boolean emailExists(String email){
+    public boolean emailExists(String email) {
         return repo.findByEmail(email) != null;
     }
 
-    public String register(UserRegistrationDTO userRegistrationDTO){
+    public void register(UserRegistrationDTO userRegistrationDTO) throws BackendErrorException {
         System.out.println("DEBUG - Attempting to register user: " + userRegistrationDTO.getUsername());
 
-        // Validate username
-        String usernameError = ValidationUtil.validateUsername(userRegistrationDTO.getUsername());
-        if (usernameError != null) return usernameError;
+        try {
+            // Validate username
+            ValidationUtil.validateUsername(userRegistrationDTO.getUsername());
 
-        // Validate email
-        String emailError = ValidationUtil.validateEmail(userRegistrationDTO.getEmail());
-        if (emailError != null) return emailError;
+            // Validate email
+            ValidationUtil.validateEmail(userRegistrationDTO.getEmail());
 
-        // Validate password
-        String passwordError = ValidationUtil.validatePassword(userRegistrationDTO.getPassword());
-        if (passwordError != null) return passwordError;
+            // Validate password
+            ValidationUtil.validatePassword(userRegistrationDTO.getPassword());
 
-        // Check if username exists
-        if(repo.findByUsername(userRegistrationDTO.getUsername()) != null) return "Username is taken";
+            // Check if username exists in repo
+            if (repo.findByUsername(userRegistrationDTO.getUsername()) != null)
+                throw new ExistsInRepoException("Username is taken");
 
-        // Check if email exists
-        if (repo.findByEmail(userRegistrationDTO.getEmail()) != null) return "Email is taken";
+            // Check if email exists
+            if (repo.findByEmail(userRegistrationDTO.getEmail()) != null)
+                throw new ExistsInRepoException("Email is taken");
+        } catch (ValidationException ve) {
+            throw new BackendErrorException(ve);
+        } catch (ExistsInRepoException eire) {
+            throw new BackendErrorException(eire);
+        }
 
         // Use UserFactory to create a user
-        Users newUsers = UserFactory.createUser("USER", userRegistrationDTO.getUsername(),
-                userRegistrationDTO.getEmail(), encoder.encode(userRegistrationDTO.getPassword()));
+        Users newUsers = UserFactory.createUser(
+                "USER",
+                userRegistrationDTO.getUsername(),
+                userRegistrationDTO.getEmail(),
+                encoder.encode(userRegistrationDTO.getPassword()));
 
         ((AppUsers) newUsers).setId(null);
+
         repo.save(newUsers);
+
         System.out.println("DEBUG - Successfully registered user: " + newUsers.getUsername());
-        return "Users successfully registered";
     }
-
-
-    // public Users login(Users user){
-    //     return repo.findByUsername(user.getUsername());
-    // }
 
     public String resetPassword(PasswordResetDTO passwordResetDTO, String email) {
         Users users = repo.findByEmail(email);
@@ -88,16 +96,15 @@ public class UserService {
         return resetToken;
     }
 
-    public String verify(Users users){
+    public String verify(Users users) {
         System.out.println(users.toString());
         System.out.println("DEBUG - Attempting to verify users: " + users.getUsername());
         System.out.println("DEBUG - Received password: " + users.getPassword());
         try {
             Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(users.getUsername(), users.getPassword())
-            );
+                    new UsernamePasswordAuthenticationToken(users.getUsername(), users.getPassword()));
 
-            if(authentication.isAuthenticated()){
+            if (authentication.isAuthenticated()) {
                 System.out.println("DEBUG - Users authenticated successfully: " + users.getUsername());
                 return jwtService.generateToken(users.getUsername());
             }
@@ -110,7 +117,7 @@ public class UserService {
         }
     }
 
-    public List<Users> getAllUsers(){
+    public List<Users> getAllUsers() {
         List<Users> users = repo.findAll();
         System.out.println("DEBUG - Found " + users.size() + " users in database");
         return users;
@@ -139,7 +146,7 @@ public class UserService {
 
     public String deleteAccount(String username) {
         System.out.println("DEBUG - Attempting to delete account for users: " + username);
-        
+
         // Don't allow deletion of admin account
         if ("admin".equals(username)) {
             System.out.println("WARN - Attempted to delete admin account");
@@ -154,11 +161,12 @@ public class UserService {
 
         try {
             // Log users details before deletion (for audit purposes)
-            System.out.println("INFO - Deleting users account - Username: " + username + ", Email: " + users.getEmail());
-            
+            System.out
+                    .println("INFO - Deleting users account - Username: " + username + ", Email: " + users.getEmail());
+
             // Delete the users
             repo.delete((AppUsers) users);
-            
+
             // Log successful deletion
             System.out.println("INFO - Successfully deleted users account and associated data for: " + username);
             return "Account successfully deleted";
@@ -172,7 +180,7 @@ public class UserService {
 
     public String updateProfile(String username, UserProfileUpdateDTO profileUpdateDTO) {
         System.out.println("DEBUG - Attempting to update profile for users: " + username);
-        
+
         Users users = repo.findByUsername(username);
         if (users == null) {
             System.out.println("WARN - Users not found for profile update: " + username);
@@ -182,10 +190,11 @@ public class UserService {
         try {
             // Validate and update username if provided
             if (profileUpdateDTO.getUsername() != null && !profileUpdateDTO.getUsername().equals(users.getUsername())) {
-                String usernameError = ValidationUtil.validateUsername(profileUpdateDTO.getUsername());
-                if (usernameError != null) {
-                    System.out.println("WARN - Username validation failed: " + usernameError);
-                    return usernameError;
+                try {
+                    ValidationUtil.validateUsername(profileUpdateDTO.getUsername());
+                } catch (ValidationException ve) {
+                    System.out.println("WARN - Username validation failed: " + ve.getMessage());
+                    return ve.getMessage();
                 }
 
                 // Check if username is already taken
@@ -200,10 +209,11 @@ public class UserService {
 
             // Validate and update email if provided
             if (profileUpdateDTO.getEmail() != null && !profileUpdateDTO.getEmail().equals(users.getEmail())) {
-                String emailError = ValidationUtil.validateEmail(profileUpdateDTO.getEmail());
-                if (emailError != null) {
-                    System.out.println("WARN - Email validation failed: " + emailError);
-                    return emailError;
+                try {
+                    ValidationUtil.validateEmail(profileUpdateDTO.getEmail());
+                } catch (ValidationException ve) {
+                    System.out.println("WARN - Email is already taken: " + ve.getMessage());
+                    return ve.getMessage();
                 }
 
                 // Check if email is already taken
