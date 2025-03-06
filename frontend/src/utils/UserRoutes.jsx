@@ -7,24 +7,14 @@ import {
 } from "./Constants";
 
 export const register = async (user) => {
-  try {
-    const response = await fetch(`${API_URL}/register`, {
-      method: POST_METHOD,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
-      credentials: "include",
-    });
+  const response = await fetch(`${API_URL}/register`, {
+    method: POST_METHOD,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(user),
+    credentials: "include",
+  });
 
-    const data = await response.text();
-
-    if (!data.includes("User successfully registered")) {
-      throw new Error(data);
-    }
-
-    return data;
-  } catch (error) {
-    return "Registration failed: " + error.message;
-  }
+  return await response.text();
 };
 
 export const login = async (user) => {
@@ -60,10 +50,10 @@ export const logout = async (token) => {
     });
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    
+
     // Trigger storage event for components to react
-    window.dispatchEvent(new Event('storage'));
-    
+    window.dispatchEvent(new Event("storage"));
+
     return await response.text();
   } catch (error) {
     return "Logout failed";
@@ -93,9 +83,15 @@ export const updateProfile = async (token, profile) => {
       // Handle specific error messages from backend
       if (data.includes("Username is already taken")) {
         return "Username is already taken";
-      } else if (data.includes("Email is already taken") || data.includes("This email is already registered")) {
+      } else if (
+        data.includes("Email is already taken") ||
+        data.includes("This email is already registered")
+      ) {
         return "Email is already in use";
-      } else if (data.includes("Invalid email format") || data.includes("Email domain not supported")) {
+      } else if (
+        data.includes("Invalid email format") ||
+        data.includes("Email domain not supported")
+      ) {
         return data; // Return the exact error message for email validation issues
       } else {
         // Generic error for other cases
@@ -109,7 +105,7 @@ export const updateProfile = async (token, profile) => {
   }
 };
 
-export const deleteAccount = async (token,confirmation) => {
+export const deleteAccount = async (token, confirmation) => {
   try {
     const response = await fetch(`${API_URL}/user/delete`, {
       method: DELETE_METHOD,
@@ -163,15 +159,15 @@ export const uploadImage = async (file) => {
     const response = await fetch(`${API_URL}/file/upload`, {
       method: "POST",
       headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: formData,
       credentials: "include",
-  });
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
       throw new Error(`Failed to upload image: ${await response.text()}`);
-  }
+    }
 
     return await response.text(); // Backend returns the S3 URL as plain text
   } catch (error) {
@@ -212,18 +208,18 @@ export const resetPassword = async (resetPasswordDTO) => {
 
 export const createItem = async (itemData) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      throw new Error('No authentication token found');
+      throw new Error("No authentication token found");
     }
 
     const response = await fetch(`${API_URL}/create-item`, {
       method: POST_METHOD,
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(itemData)
+      body: JSON.stringify(itemData),
     });
 
     if (!response.ok) {
@@ -234,39 +230,37 @@ export const createItem = async (itemData) => {
     const data = await response.json();
     return { success: true, data };
   } catch (error) {
-    return { 
-      success: false, 
-      error: error.message || 'Failed to create item' 
+    return {
+      success: false,
+      error: error.message || "Failed to create item",
     };
   }
 };
-
-
 
 export const getUserItems = async () => {
   const token = localStorage.getItem("token"); // Retrieve token from localStorage
 
   if (!token) {
-      console.error("No authentication token found");
-      return null;
+    console.error("No authentication token found");
+    return null;
   }
 
   try {
-      const response = await fetch(`${API_URL}/user/items`, {
-          method: "GET",
-          headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-          }
-      });
+    const response = await fetch(`${API_URL}/user/items`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-      if (!response.ok) {
-          throw new Error(`Error: ${response.status} - ${await response.text()}`);
-      }
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${await response.text()}`);
+    }
 
-      return await response.json();
+    return await response.json();
   } catch (error) {
-      console.error("Failed to fetch user items:", error.message);
-      return null;
+    console.error("Failed to fetch user items:", error.message);
+    return null;
   }
 };

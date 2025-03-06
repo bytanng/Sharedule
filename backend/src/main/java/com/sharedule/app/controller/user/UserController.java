@@ -1,4 +1,5 @@
 package com.sharedule.app.controller.user;
+
 import com.sharedule.app.model.user.Users;
 import com.sharedule.app.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import com.sharedule.app.service.user.UserService;
 import com.sharedule.app.service.user.JWTService;
 import org.springframework.http.ResponseEntity;
 import com.sharedule.app.dto.UserRegistrationDTO;
+import com.sharedule.app.exception.BackendErrorException;
 import com.sharedule.app.dto.PasswordResetDTO;
 import com.sharedule.app.dto.PasswordResetRequestDTO;
 import java.util.List;
@@ -23,7 +25,7 @@ import com.sharedule.app.dto.UserProfileUpdateDTO;
 
 @RestController
 public class UserController {
-    
+
     @Autowired
     private UserService userService;
 
@@ -34,25 +36,29 @@ public class UserController {
     private JWTService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserRegistrationDTO userRegistrationDTO){
-        String response = userService.register(userRegistrationDTO);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> register(@RequestBody UserRegistrationDTO userRegistrationDTO) {
+        try {
+            userService.register(userRegistrationDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("User successfully registered");
+        } catch (BackendErrorException bee) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
+        }
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody AppUsers user){
+    public String login(@RequestBody AppUsers user) {
         return userService.verify(user);
     }
 
     @GetMapping("/users")
-    public List<Users> getAllUsers(){
+    public List<Users> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/profile")
     public AppUsers getUser(
-        @RequestHeader("Authorization") String token) {
-            return (AppUsers) userService.getUser(token);
+            @RequestHeader("Authorization") String token) {
+        return (AppUsers) userService.getUser(token);
     }
 
     @PostMapping("/logout")
@@ -68,7 +74,8 @@ public class UserController {
         try {
             // Validate confirmation
             if (!"CONFIRM_DELETE".equals(confirmation)) {
-                return ResponseEntity.badRequest().body("Please provide the confirmation header with value 'CONFIRM_DELETE' to confirm account deletion");
+                return ResponseEntity.badRequest().body(
+                        "Please provide the confirmation header with value 'CONFIRM_DELETE' to confirm account deletion");
             }
 
             // Validate token format
@@ -90,28 +97,28 @@ public class UserController {
 
             // Attempt to delete the account
             String result = userService.deleteAccount(username);
-            
+
             // Handle different response cases
             switch (result) {
                 case "Account successfully deleted":
                     return ResponseEntity.ok()
-                        .body("Your account and all associated data have been permanently deleted");
+                            .body("Your account and all associated data have been permanently deleted");
                 case "Users not found":
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Account not found. It may have been already deleted");
+                            .body("Account not found. It may have been already deleted");
                 case "Cannot delete admin account through this endpoint":
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Admin accounts cannot be deleted through this endpoint");
+                            .body("Admin accounts cannot be deleted through this endpoint");
                 default:
                     if (result.startsWith("Failed to delete account")) {
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body("An error occurred while deleting your account. Please try again later");
+                                .body("An error occurred while deleting your account. Please try again later");
                     }
                     return ResponseEntity.badRequest().body(result);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred while processing your request");
+                    .body("An unexpected error occurred while processing your request");
         }
     }
 
@@ -144,28 +151,28 @@ public class UserController {
             if (result.startsWith("Profile successfully updated: ")) {
                 return ResponseEntity.ok(result);
             }
-            
+
             // Handle different failed response cases
             switch (result) {
                 case "Users not found":
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Account not found");
+                            .body("Account not found");
                 case "Email is already taken":
                     return ResponseEntity.badRequest()
-                        .body("Email is already taken");
+                            .body("Email is already taken");
                 default:
                     if (result.contains("Invalid email format") || result.contains("Email domain not supported")) {
                         return ResponseEntity.badRequest().body(result);
                     }
                     if (result.startsWith("Failed to update profile")) {
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body("An error occurred while updating your profile. Please try again later");
+                                .body("An error occurred while updating your profile. Please try again later");
                     }
                     return ResponseEntity.badRequest().body(result);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred while processing your request");
+                    .body("An unexpected error occurred while processing your request");
         }
     }
 
