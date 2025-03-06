@@ -59,13 +59,11 @@ const ViewListings = () => {
             <div className="container my-5">
                 <h2 className="text-center mb-4">My Listings</h2>
                 <div className="row justify-content-center">
-                    <div className="container my-5 py-2">
                         <div className="row">
                         {items.length === 0 ? (
                             <p>No items found.</p>
                         ) : (
-                            <ul>
-                                {items.map((item) => (
+                                items.map((item) => (
                                     <div
                                     id={item.id}
                                     key={item.id}
@@ -77,6 +75,7 @@ const ViewListings = () => {
                                             src={item.itemImage}
                                             alt="Card"
                                             height={300}
+                                            style={{objectFit:'contain'}}
                                             />
                                             <div className="card-body">
                                             <h5 className="card-title">
@@ -87,9 +86,7 @@ const ViewListings = () => {
                                             </p>
                                             </div>
                                             <ul className="list-group list-group-flush">
-                                            <li className="list-group-item lead">$ {item.price}</li>
-                                            {/* <li className="list-group-item">Dapibus ac facilisis in</li>
-                                                <li className="list-group-item">Vestibulum at eros</li> */}
+                                              <li className="list-group-item lead">$ {item.itemPrice}</li>
                                             </ul>
                                             <div className="card-body">
 
@@ -103,11 +100,8 @@ const ViewListings = () => {
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </ul>
-                        )}
+                                )))}
                         </div>
-                    </div>
                 </div>
             </div>
             <Footer />
