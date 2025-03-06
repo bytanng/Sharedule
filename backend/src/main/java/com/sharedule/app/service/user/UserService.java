@@ -2,8 +2,6 @@ package com.sharedule.app.service.user;
 import com.sharedule.app.dto.UserRegistrationDTO;
 import com.sharedule.app.dto.UserProfileUpdateDTO;
 import com.sharedule.app.dto.PasswordResetDTO;
-import com.sharedule.app.factory.UserFactory;
-import com.sharedule.app.model.user.AppUsers;
 import com.sharedule.app.model.user.Users;
 import com.sharedule.app.repository.user.UserRepo;
 import com.sharedule.app.util.user.ValidationUtil;
@@ -35,50 +33,65 @@ public class UserService {
 
     public String register(UserRegistrationDTO userRegistrationDTO){
         System.out.println("DEBUG - Attempting to register user: " + userRegistrationDTO.getUsername());
-
-        // Validate username
+        
+        // Validate username - set to between 6 and 20 char for now
         String usernameError = ValidationUtil.validateUsername(userRegistrationDTO.getUsername());
-        if (usernameError != null) return usernameError;
+        if (usernameError != null) {
+            System.out.println("WARN - Username validation failed: " + usernameError);
+            return usernameError;
+        }
 
-        // Validate email
+        // Validate email - set to gmail, outlook, hotmail, yahoo for now
         String emailError = ValidationUtil.validateEmail(userRegistrationDTO.getEmail());
-        if (emailError != null) return emailError;
+        if (emailError != null) {
+            System.out.println("WARN - Email validation failed: " + emailError);
+            return emailError;
+        }
 
-        // Validate password
+        // Validate password - set to min 3 char for now
         String passwordError = ValidationUtil.validatePassword(userRegistrationDTO.getPassword());
-        if (passwordError != null) return passwordError;
+        if (passwordError != null) {
+            System.out.println("WARN - Password validation failed: " + passwordError);
+            return passwordError;
+        }
 
-        // Check if username exists
-        if(repo.findByUsername(userRegistrationDTO.getUsername()) != null) return "Username is taken";
-
-        // Check if email exists
-        if (repo.findByEmail(userRegistrationDTO.getEmail()) != null) return "Email is taken";
-
-        // Use UserFactory to create a user
-        Users newUsers = UserFactory.createUser("USER", userRegistrationDTO.getUsername(),
-                userRegistrationDTO.getEmail(), encoder.encode(userRegistrationDTO.getPassword()));
-
-        ((AppUsers) newUsers).setId(null);
-        repo.save(newUsers);
-        System.out.println("DEBUG - Successfully registered user: " + newUsers.getUsername());
-        return "Users successfully registered";
+        //check if username exists
+        if(repo.findByUsername(userRegistrationDTO.getUsername()) != null){
+            System.out.println("WARN - Username is already taken: " + userRegistrationDTO.getUsername());
+            return "Username is taken";
+        }
+        //check if email exists
+        if (repo.findByEmail(userRegistrationDTO.getEmail()) != null){
+            System.out.println("WARN - Email is already taken: " + userRegistrationDTO.getEmail());
+            return "Email is taken";
+        }
+        
+        //proceed to register if both username and email does not exist
+        Users newUser = new Users();
+        newUser.setUsername(userRegistrationDTO.getUsername());
+        newUser.setEmail(userRegistrationDTO.getEmail());
+        String hashedPassword = encoder.encode(userRegistrationDTO.getPassword());
+        System.out.println("DEBUG - Generated password hash: " + hashedPassword);
+        newUser.setPassword(hashedPassword);
+        repo.save(newUser);
+        System.out.println("DEBUG - Successfully registered user: " + newUser.getUsername());
+        return "User successfully registered";
     }
-
 
     // public Users login(Users user){
     //     return repo.findByUsername(user.getUsername());
     // }
 
     public String resetPassword(PasswordResetDTO passwordResetDTO, String email) {
-        Users users = repo.findByEmail(email);
-        if (users == null) {
-            return "No such users with email found";
+        Users user = repo.findByEmail(email);
+        if (user == null) {
+            return "No such user with email found";
         }
         String hashedPassword = encoder.encode(passwordResetDTO.getNewPassword());
         System.out.println("DEBUG - Generated password hash: " + hashedPassword);
-        ((AppUsers) users).setPassword(hashedPassword);
-        repo.save((AppUsers) users);
-        System.out.println("DEBUG - Successfully reset password for users: " + users.getUsername());
+        user.setPassword(hashedPassword);
+        repo.save(user);
+        System.out.println("DEBUG - Successfully reset password for user: " + user.getUsername());
         return "Password successfully reset";
     }
 
@@ -88,23 +101,22 @@ public class UserService {
         return resetToken;
     }
 
-    public String verify(Users users){
-        System.out.println(users.toString());
-        System.out.println("DEBUG - Attempting to verify users: " + users.getUsername());
-        System.out.println("DEBUG - Received password: " + users.getPassword());
+    public String verify(Users user){
+        System.out.println("DEBUG - Attempting to verify user: " + user.getUsername());
+        System.out.println("DEBUG - Received password: " + user.getPassword());
         try {
             Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(users.getUsername(), users.getPassword())
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
             );
 
             if(authentication.isAuthenticated()){
-                System.out.println("DEBUG - Users authenticated successfully: " + users.getUsername());
-                return jwtService.generateToken(users.getUsername());
+                System.out.println("DEBUG - User authenticated successfully: " + user.getUsername());
+                return jwtService.generateToken(user.getUsername());
             }
-            System.out.println("WARN - Authentication failed for users: " + users.getUsername());
+            System.out.println("WARN - Authentication failed for user: " + user.getUsername());
             return "Authentication failed";
         } catch (Exception e) {
-            System.out.println("ERROR - Authentication error for users " + users.getUsername() + ": " + e.getMessage());
+            System.out.println("ERROR - Authentication error for user " + user.getUsername() + ": " + e.getMessage());
             e.printStackTrace();
             return "Authentication error: " + e.getMessage();
         }
@@ -119,8 +131,8 @@ public class UserService {
     public Users getUser(String token) {
         String jwtToken = token.substring(7);
         String usernameFromToken = jwtService.extractUserName(jwtToken);
-        Users users = repo.findByUsername(usernameFromToken);
-        return users;
+        Users user = repo.findByUsername(usernameFromToken);
+        return user;
     }
 
     public String logout(String token) {
@@ -130,7 +142,7 @@ public class UserService {
                 System.out.println("DEBUG - Token is already expired");
                 return "Token is already expired";
             }
-            System.out.println("DEBUG - Users logged out successfully");
+            System.out.println("DEBUG - User logged out successfully");
             return "Logged out successfully";
         }
         System.out.println("WARN - Invalid token format");
@@ -138,7 +150,7 @@ public class UserService {
     }
 
     public String deleteAccount(String username) {
-        System.out.println("DEBUG - Attempting to delete account for users: " + username);
+        System.out.println("DEBUG - Attempting to delete account for user: " + username);
         
         // Don't allow deletion of admin account
         if ("admin".equals(username)) {
@@ -146,42 +158,42 @@ public class UserService {
             return "Cannot delete admin account through this endpoint";
         }
 
-        Users users = repo.findByUsername(username);
-        if (users == null) {
-            System.out.println("WARN - Users not found for deletion: " + username);
-            return "Users not found";
+        Users user = repo.findByUsername(username);
+        if (user == null) {
+            System.out.println("WARN - User not found for deletion: " + username);
+            return "User not found";
         }
 
         try {
-            // Log users details before deletion (for audit purposes)
-            System.out.println("INFO - Deleting users account - Username: " + username + ", Email: " + users.getEmail());
+            // Log user details before deletion (for audit purposes)
+            System.out.println("INFO - Deleting user account - Username: " + username + ", Email: " + user.getEmail());
             
-            // Delete the users
-            repo.delete((AppUsers) users);
+            // Delete the user
+            repo.delete(user);
             
             // Log successful deletion
-            System.out.println("INFO - Successfully deleted users account and associated data for: " + username);
+            System.out.println("INFO - Successfully deleted user account and associated data for: " + username);
             return "Account successfully deleted";
         } catch (Exception e) {
             // Log the error with stack trace
-            System.out.println("ERROR - Failed to delete users " + username + ": " + e.getMessage());
+            System.out.println("ERROR - Failed to delete user " + username + ": " + e.getMessage());
             e.printStackTrace();
             return "Failed to delete account: " + e.getMessage();
         }
     }
 
     public String updateProfile(String username, UserProfileUpdateDTO profileUpdateDTO) {
-        System.out.println("DEBUG - Attempting to update profile for users: " + username);
+        System.out.println("DEBUG - Attempting to update profile for user: " + username);
         
-        Users users = repo.findByUsername(username);
-        if (users == null) {
-            System.out.println("WARN - Users not found for profile update: " + username);
-            return "Users not found";
+        Users user = repo.findByUsername(username);
+        if (user == null) {
+            System.out.println("WARN - User not found for profile update: " + username);
+            return "User not found";
         }
 
         try {
             // Validate and update username if provided
-            if (profileUpdateDTO.getUsername() != null && !profileUpdateDTO.getUsername().equals(users.getUsername())) {
+            if (profileUpdateDTO.getUsername() != null && !profileUpdateDTO.getUsername().equals(user.getUsername())) {
                 String usernameError = ValidationUtil.validateUsername(profileUpdateDTO.getUsername());
                 if (usernameError != null) {
                     System.out.println("WARN - Username validation failed: " + usernameError);
@@ -189,17 +201,17 @@ public class UserService {
                 }
 
                 // Check if username is already taken
-                Users existingUsersWithUsername = repo.findByUsername(profileUpdateDTO.getUsername());
-                if (existingUsersWithUsername != null) {
+                Users existingUserWithUsername = repo.findByUsername(profileUpdateDTO.getUsername());
+                if (existingUserWithUsername != null) {
                     System.out.println("WARN - Username is already taken: " + profileUpdateDTO.getUsername());
                     return "Username is already taken";
                 }
 
-                ((AppUsers) users).setUsername(profileUpdateDTO.getUsername());
+                user.setUsername(profileUpdateDTO.getUsername());
             }
 
             // Validate and update email if provided
-            if (profileUpdateDTO.getEmail() != null && !profileUpdateDTO.getEmail().equals(users.getEmail())) {
+            if (profileUpdateDTO.getEmail() != null && !profileUpdateDTO.getEmail().equals(user.getEmail())) {
                 String emailError = ValidationUtil.validateEmail(profileUpdateDTO.getEmail());
                 if (emailError != null) {
                     System.out.println("WARN - Email validation failed: " + emailError);
@@ -207,26 +219,26 @@ public class UserService {
                 }
 
                 // Check if email is already taken
-                Users existingUsersWithEmail = repo.findByEmail(profileUpdateDTO.getEmail());
-                if (existingUsersWithEmail != null) {
+                Users existingUserWithEmail = repo.findByEmail(profileUpdateDTO.getEmail());
+                if (existingUserWithEmail != null) {
                     System.out.println("WARN - Email is already taken: " + profileUpdateDTO.getEmail());
                     return "Email is already taken";
                 }
 
-                ((AppUsers) users).setEmail(profileUpdateDTO.getEmail());
+                user.setEmail(profileUpdateDTO.getEmail());
             }
 
             // Update display picture if provided
             if (profileUpdateDTO.getDisplayPicture() != null) {
-                ((AppUsers) users).setDisplayPicture(profileUpdateDTO.getDisplayPicture());
+                user.setDisplayPicture(profileUpdateDTO.getDisplayPicture());
             }
 
-            // Save the updated users
-            repo.save((AppUsers) users);
-            System.out.println("INFO - Successfully updated profile for users: " + username);
-            return "Profile successfully updated: " + jwtService.generateToken(users.getUsername());
+            // Save the updated user
+            repo.save(user);
+            System.out.println("INFO - Successfully updated profile for user: " + username);
+            return "Profile successfully updated: " + jwtService.generateToken(user.getUsername());
         } catch (Exception e) {
-            System.out.println("ERROR - Failed to update profile for users " + username + ": " + e.getMessage());
+            System.out.println("ERROR - Failed to update profile for user " + username + ": " + e.getMessage());
             e.printStackTrace();
             return "Failed to update profile: " + e.getMessage();
         }

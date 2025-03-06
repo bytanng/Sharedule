@@ -1,7 +1,7 @@
 package com.sharedule.app.service.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.sharedule.app.model.user.UserPrincipal;
-import com.sharedule.app.model.user.*;
+import com.sharedule.app.model.user.Users;
 import com.sharedule.app.repository.user.UserRepo;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,14 +16,14 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("DEBUG - Attempting to load users: " + username);
-        Users users = repo.findByUsername(username);
-        if(users == null){
-            System.out.println("ERROR - Users not found with username: " + username);
-            throw new UsernameNotFoundException("Users not found with username: " + username);
+        System.out.println("DEBUG - Attempting to load user: " + username);
+        Users user = repo.findByUsername(username);
+        if(user == null){
+            System.out.println("ERROR - User not found with username: " + username);
+            throw new UsernameNotFoundException("User not found with username: " + username);
         }
-        System.out.println("DEBUG - Users found: " + users.getUsername());
-        System.out.println("DEBUG - Users password hash: " + users.getPassword());
-        return new UserPrincipal(users);
+        System.out.println("DEBUG - User found: " + user.getUsername());
+        System.out.println("DEBUG - User password hash: " + user.getPassword());
+        return new UserPrincipal(user);
     }
 }
