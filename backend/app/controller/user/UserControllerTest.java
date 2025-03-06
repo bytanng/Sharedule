@@ -50,14 +50,14 @@ public class UserControllerTest {
         registrationDTO.setPassword("password123");
 
         when(userService.register(any(UserRegistrationDTO.class)))
-                .thenReturn("User succesfully registered");
+                .thenReturn("Users succesfully registered");
 
         // Act & Assert
         mockMvc.perform(post("/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registrationDTO)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("User succesfully registered"));
+                .andExpect(content().string("Users succesfully registered"));
     }
 
     @Test

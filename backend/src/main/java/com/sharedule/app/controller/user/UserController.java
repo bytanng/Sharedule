@@ -1,4 +1,5 @@
 package com.sharedule.app.controller.user;
+import com.sharedule.app.model.user.Users;
 import com.sharedule.app.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ import com.sharedule.app.dto.PasswordResetRequestDTO;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 
-import com.sharedule.app.model.user.Users;
+import com.sharedule.app.model.user.AppUsers;
 import com.sharedule.app.dto.UserProfileUpdateDTO;
 
 @RestController
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Users user){
+    public String login(@RequestBody AppUsers user){
         return userService.verify(user);
     }
 
@@ -49,9 +50,9 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public Users getUser(
+    public AppUsers getUser(
         @RequestHeader("Authorization") String token) {
-            return userService.getUser(token);
+            return (AppUsers) userService.getUser(token);
     }
 
     @PostMapping("/logout")
@@ -95,7 +96,7 @@ public class UserController {
                 case "Account successfully deleted":
                     return ResponseEntity.ok()
                         .body("Your account and all associated data have been permanently deleted");
-                case "User not found":
+                case "Users not found":
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Account not found. It may have been already deleted");
                 case "Cannot delete admin account through this endpoint":
@@ -146,7 +147,7 @@ public class UserController {
             
             // Handle different failed response cases
             switch (result) {
-                case "User not found":
+                case "Users not found":
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Account not found");
                 case "Email is already taken":
