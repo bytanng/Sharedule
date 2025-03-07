@@ -279,3 +279,30 @@ export const getItem = async (id) => {
 
   return await response.json();
 };
+
+export const searchItems = async (query) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await fetch(`${API_URL}/search?query=${query}`, {
+      method: GET_METHOD,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // Ensure it's always an array
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching search results:", error);
+    return []; // Return an empty array on error
+  }
+};

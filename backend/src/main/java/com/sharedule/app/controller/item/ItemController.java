@@ -121,4 +121,41 @@ public class ItemController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item not found"); 
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchItems(
+        @RequestParam String query,
+        @RequestHeader("Authorization") String token) {
+
+        try {
+            // Validate token format
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
+            }
+
+            // Extract and validate token
+            String jwtToken = token.substring(7);
+            if (jwtService.isTokenExpired(jwtToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+            }
+
+            // Get user from token
+            Users user = userService.getUser(token);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            List<Item> itemsFound = itemService.searchItems(query);
+
+            for (Item item : itemsFound) {
+                if (!user.equals(item.getUser())) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to view this item");
+                }
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(itemsFound);
+        } catch (BackendErrorException bee) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage()); 
+        }
+    }
 }
