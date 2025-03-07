@@ -64,4 +64,16 @@ public class ItemService {
             throw new BackendErrorException(nfe);
         }
     }
+
+    public List<Item> searchItems(String query) throws BackendErrorException {
+        try {
+            List<Item> itemsFound = repo.findByItemNameContainingIgnoreCase(query);
+            if (itemsFound.isEmpty()) {
+                throw new NotFoundException("The item you requested could not be found");
+            }
+            return itemsFound;
+        } catch (NotFoundException nfe) {
+            throw new BackendErrorException(nfe);
+        }
+    }
 }
