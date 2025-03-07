@@ -7,4 +7,6 @@ public interface Users {
     String getRole();
     String getDisplayPicture();
     String getPassword();
+
+    boolean equals(Object obj);
 }

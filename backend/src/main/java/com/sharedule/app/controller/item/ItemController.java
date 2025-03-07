@@ -3,6 +3,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.sharedule.app.dto.CreateItemDTO;
+import com.sharedule.app.exception.BackendErrorException;
 import com.sharedule.app.service.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,6 +85,40 @@ public class ItemController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while fetching items: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/item/{itemId}")
+    public ResponseEntity<?> viewItem(
+        @PathVariable String itemId,
+        @RequestHeader("Authorization") String token) {
+        try {
+            // Validate token format
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
+            }
+
+            // Extract and validate token
+            String jwtToken = token.substring(7);
+            if (jwtService.isTokenExpired(jwtToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+            }
+
+            // Get user from token
+            Users user = userService.getUser(token);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            Item itemToBeViewed = itemService.viewItem(itemId);
+
+            if (!user.equals(itemToBeViewed.getUser())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to view this item");
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(itemToBeViewed);
+        } catch (BackendErrorException bee) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item not found"); 
         }
     }
 }

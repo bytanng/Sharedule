@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import com.sharedule.app.model.item.Item;
 import com.sharedule.app.model.user.Users;
 import com.sharedule.app.dto.CreateItemDTO;
+import com.sharedule.app.exception.NotFoundException;
+import com.sharedule.app.exception.BackendErrorException;
 import com.sharedule.app.repository.item.ItemRepo;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -52,5 +54,14 @@ public class ItemService {
 
     public List<Item> getItemsByUser(Users user) {
         return repo.findByUser(user);
+    }
+
+    public Item viewItem(String itemId) throws BackendErrorException {
+        try {
+            Item itemToBeViewed = repo.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
+            return itemToBeViewed;
+        } catch (NotFoundException nfe) {
+            throw new BackendErrorException(nfe);
+        }
     }
 }

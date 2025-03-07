@@ -22,6 +22,7 @@ import {
   PageNotFound,
   ForgetPassword,
   Profile,
+  Item,
 } from "./pages";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
@@ -36,24 +37,32 @@ root.render(
           <Route path="/" element={<Home />} />
           <Route path="/product" element={<Products />} />
           <Route path="/product/:id" element={<Product />} />
+          <Route
+            path="/item/:id"
+            element={
+              <ProtectedRoute>
+                <Item />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/cart" element={<Cart />} />
-          <Route 
-            path="/create-listing" 
+          <Route
+            path="/create-listing"
             element={
               <ProtectedRoute>
                 <CreateListing />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/view-listings" 
+          <Route
+            path="/view-listings"
             element={
               <ProtectedRoute>
                 <ViewListings />
               </ProtectedRoute>
-            } 
+            }
           />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
