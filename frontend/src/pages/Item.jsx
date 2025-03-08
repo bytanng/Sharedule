@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Footer, Navbar } from "../components";
 import Skeleton from "react-loading-skeleton";
-import { getItem } from "../utils/UserRoutes";
+import { getItem } from "../utils/ItemRoutes";
+import { useNavigate } from 'react-router-dom';
 
 const Item = () => {
+
+  const navigate = useNavigate();
   const { id } = useParams();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -29,6 +32,10 @@ const Item = () => {
 
   if (!item) {
     return <div>You are not authorized to view this item</div>; // Handle the case when the item is not found
+  }
+
+  const routeToEditItem = () => {
+    navigate(`/item/edit/${id}`)
   }
 
   const Loading =
@@ -79,7 +86,7 @@ const Item = () => {
               <h1 className="display-5">{item.itemName}</h1>
               <h3 className="display-6  my-4">${item.itemPrice}</h3>
               <p className="lead">{item.itemDescription}</p>
-              <button className="btn btn-primary m-1" onClick={() => {}}>
+              <button className="btn btn-primary m-1" onClick={() => routeToEditItem()}>
                 Edit Item
               </button>
               <button className="btn btn-primary btn-danger" onClick={() => {}}>

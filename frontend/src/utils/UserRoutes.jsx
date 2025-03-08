@@ -264,18 +264,3 @@ export const getUserItems = async () => {
     return null;
   }
 };
-
-export const getItem = async (id) => {
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`${API_URL}/item/${id}`, {
-    method: GET_METHOD,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-
-  return await response.json();
-};
