@@ -1,4 +1,4 @@
-import { API_URL, POST_METHOD, GET_METHOD } from "./Constants";
+import { API_URL, POST_METHOD, GET_METHOD, DELETE_METHOD } from "./Constants";
 
 export const createItem = async (itemData) => {
   try {
@@ -143,5 +143,23 @@ export const searchAvailItems = async (query) => {
   } catch (error) {
     console.error("Error fetching search results:", error);
     return []; // Return an empty array on error
+  }
+};
+
+export const deleteItem = async (token, id) => {
+  try {
+    const response = await fetch(`${API_URL}/item/${id}/delete`, {
+      method: DELETE_METHOD,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+    });
+
+    const data = await response.text();
+
+    return data;
+  } catch (error) {
+    return "Item deletion failed";
   }
 };

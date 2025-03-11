@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Footer, Navbar } from "../components";
 import Skeleton from "react-loading-skeleton";
-import { getItem } from "../utils/ItemRoutes";
+import { getItem, deleteItem } from "../utils/ItemRoutes";
+import DeleteModal from "../components/DeleteModal";
 
 const Item = () => {
   const { id } = useParams();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const showItem = async () => {
@@ -26,6 +30,18 @@ const Item = () => {
 
     showItem();
   }, [id]);
+
+  const handleDeleteClick = () => {
+    setModalOpen(true);
+  };
+
+  const handleConfirmDelete = (e) => {
+    e.preventDefault();
+    deleteItem(localStorage.getItem("token"), item.id);
+    setModalOpen(false);
+    alert("Item deleted");
+    navigate("/view-listings");
+  };
 
   if (!item) {
     return <div>You are not authorized to view this item</div>; // Handle the case when the item is not found
@@ -82,7 +98,10 @@ const Item = () => {
               <button className="btn btn-primary m-1" onClick={() => {}}>
                 Edit Item
               </button>
-              <button className="btn btn-primary btn-danger" onClick={() => {}}>
+              <button
+                className="btn btn-primary btn-danger"
+                onClick={handleDeleteClick}
+              >
                 Delete Item
               </button>
             </div>
@@ -100,6 +119,11 @@ const Item = () => {
           {loading ? <Loading /> : <DisplayItem item={item} />}
         </div>
       </div>
+      <DeleteModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
       <Footer />
     </>
   );
