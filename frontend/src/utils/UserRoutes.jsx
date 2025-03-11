@@ -328,3 +328,26 @@ export const getAvailItems = async () => {
     return null;
   }
 };
+
+export const searchAvailItems = async (query) => {
+  try {
+    const response = await fetch(`${API_URL}/search-products?query=${query}`, {
+      method: GET_METHOD,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // Ensure it's always an array
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching search results:", error);
+    return []; // Return an empty array on error
+  }
+};

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Skeleton from "react-loading-skeleton";
-import { getAvailItems, searchItems } from "../utils/UserRoutes";
+import { getAvailItems, searchAvailItems } from "../utils/UserRoutes";
 
 const Products = () => {
   const [availItems, setAvailItems] = useState([]);
@@ -28,7 +28,7 @@ const Products = () => {
       fetchAvailItems(); // Reset to all items if query is empty
     } else {
       setLoading(true);
-      const data = await searchItems(query);
+      const data = await searchAvailItems(query);
       setAvailItems(data);
       setLoading(false);
     }
