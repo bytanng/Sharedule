@@ -1,4 +1,5 @@
 package com.sharedule.app.service.item;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sharedule.app.model.item.Item;
@@ -25,7 +26,7 @@ public class ItemService {
         if (itemDTO.getItemDescription() == null || itemDTO.getItemDescription().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Item description is required");
         }
-        
+
         // Validate price and stock
         if (itemDTO.getItemPrice() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be negative");
@@ -35,8 +36,8 @@ public class ItemService {
         }
 
         // Validate image URL format if provided
-        if (itemDTO.getItemImage() != null && !itemDTO.getItemImage().trim().isEmpty() 
-            && !itemDTO.getItemImage().matches("^(http|https)://.*$")) {
+        if (itemDTO.getItemImage() != null && !itemDTO.getItemImage().trim().isEmpty()
+                && !itemDTO.getItemImage().matches("^(http|https)://.*$")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid image URL format");
         }
 
@@ -48,7 +49,7 @@ public class ItemService {
         item.setItemAvailable(itemDTO.isItemAvailable());
         item.setItemImage(itemDTO.getItemImage() != null ? itemDTO.getItemImage().trim() : "");
         item.setUser(user);
-        
+
         return repo.save(item);
     }
 
@@ -72,6 +73,18 @@ public class ItemService {
                 throw new NotFoundException("The item you requested could not be found");
             }
             return itemsFound;
+        } catch (NotFoundException nfe) {
+            throw new BackendErrorException(nfe);
+        }
+    }
+
+    public List<Item> availableItems() throws BackendErrorException {
+        try {
+            List<Item> availableItemsFound = repo.findByItemAvailableTrue();
+            if (availableItemsFound.isEmpty()) {
+                throw new NotFoundException("There are no available items.");
+            }
+            return availableItemsFound;
         } catch (NotFoundException nfe) {
             throw new BackendErrorException(nfe);
         }
