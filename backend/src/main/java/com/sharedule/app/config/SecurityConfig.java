@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("register", "login", "logout", "user/profile", "s3", "user/reset-password",
-                                "file", "products", "search-products")
+                                "file", "products", "products/search")
                         .permitAll().requestMatchers("/file/**").authenticated()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
