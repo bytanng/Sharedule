@@ -89,4 +89,16 @@ public class ItemService {
             throw new BackendErrorException(nfe);
         }
     }
+
+    public List<Item> searchAvailableItems(String query) throws BackendErrorException {
+        try {
+            List<Item> availableItemsFound = repo.findByItemNameContainingIgnoreCaseAndItemAvailableTrue(query);
+            if (availableItemsFound.isEmpty()) {
+                throw new NotFoundException("The item you requested could not be found");
+            }
+            return availableItemsFound;
+        } catch (NotFoundException nfe) {
+            throw new BackendErrorException(nfe);
+        }
+    }
 }
