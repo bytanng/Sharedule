@@ -67,7 +67,7 @@ root.render(
           <Route path="/forgetpassword" element={<ForgetPassword />} />
           <Route path="/resetpassword/:token" element={<ResetPassword />} />
           <Route path="*" element={<PageNotFound />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/user/profile" element={<Profile />} />
           <Route path="/products" element={<Products />} />
         </Routes>
       </Provider>
