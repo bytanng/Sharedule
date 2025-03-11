@@ -18,4 +18,6 @@ public interface ItemRepo extends MongoRepository<Item, String> {
     List<Item> findByItemNameContainingIgnoreCase(String itemName);
 
     List<Item> findByItemAvailableTrue();
+
+    List<Item> findByItemNameContainingIgnoreCaseAndItemAvailableTrue(String itemName);
 }
