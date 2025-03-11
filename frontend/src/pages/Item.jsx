@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Footer, Navbar } from "../components";
 import Skeleton from "react-loading-skeleton";
-import { getItem } from "../utils/UserRoutes";
+import { getItem } from "../utils/ItemRoutes";
 
 const Item = () => {
   const { id } = useParams();

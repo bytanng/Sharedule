@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Skeleton from "react-loading-skeleton";
-import { getAvailItems, searchAvailItems } from "../utils/UserRoutes";
+import { getAvailItems, searchAvailItems } from "../utils/ItemRoutes";
 
 const Products = () => {
   const [availItems, setAvailItems] = useState([]);
@@ -113,20 +113,23 @@ const Products = () => {
     <>
       <Navbar />
       <div className="container my-5">
-        <h2 className="text-center mb-4">Products and Services</h2>
-        <div className="d-flex justify-content-center align-items-center mb-4">
-          <input
-            className="form-control me-2 w-50"
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Search items..."
-          />
-          <button className="btn btn-secondary" onClick={handleSearch}>
-            Search
-          </button>
+        <div>
+          <h2 className="text-center mb-4">Products and Services</h2>
+          <div className="d-flex justify-content-center align-items-center mb-4">
+            <input
+              className="form-control me-2 w-50"
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="Search items..."
+            />
+            <button className="btn btn-secondary" onClick={handleSearch}>
+              Search
+            </button>
+          </div>
         </div>
+        <hr />
         {loading ? <Loading /> : <DisplayAvailItems />}
       </div>
       <Footer />
