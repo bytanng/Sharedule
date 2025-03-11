@@ -170,4 +170,14 @@ public class ItemController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
         }
     }
+
+    @GetMapping("/search-products")
+    public ResponseEntity<?> searchAvailableItems(@RequestParam String query) {
+        try {
+            List<Item> availableItemsFound = itemService.searchAvailableItems(query);
+            return ResponseEntity.status(HttpStatus.OK).body(availableItemsFound);
+        } catch (BackendErrorException bee) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
+        }
+    }
 }
