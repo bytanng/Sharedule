@@ -306,3 +306,25 @@ export const searchItems = async (query) => {
     return []; // Return an empty array on error
   }
 };
+
+export const getAvailItems = async () => {
+  try {
+    const response = await fetch(`${API_URL}/products`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${await response.text()}`);
+    }
+
+    const data = await response.json();
+
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Failed to fetch user items:", error.message);
+    return null;
+  }
+};
