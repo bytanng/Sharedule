@@ -180,4 +180,59 @@ public class ItemController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
         }
     }
+
+    @DeleteMapping("/item/{itemId}/delete")
+    public ResponseEntity<String> deleteItem(
+            @PathVariable String itemId,
+            @RequestHeader("Authorization") String token) {
+        try {
+            // Validate token format
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
+            }
+
+            // Extract and validate token
+            String jwtToken = token.substring(7);
+            if (jwtService.isTokenExpired(jwtToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+            }
+
+            // Get user from token
+            Users user = userService.getUser(token);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            Item itemToBeDeleted = itemService.getItem(itemId);
+
+            if (itemToBeDeleted == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Item not found");
+            }
+
+            if (!user.equals(itemToBeDeleted.getUser())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("You are not authorized to delete this item");
+            }
+
+            String result = itemService.deleteItem(itemId);
+
+            // Handle different response cases
+            switch (result) {
+                case "Item successfully deleted":
+                    return ResponseEntity.ok()
+                            .body("The item has been permanently deleted");
+                case "Item not found":
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Item not found. It may have been already deleted");
+                default:
+                    if (result.startsWith("Failed to delete item")) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("An error occurred while deleting your item. Please try again later");
+                    }
+                    return ResponseEntity.badRequest().body(result);
+            }
+        } catch (BackendErrorException bee) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item not found");
+        }
+    }
 }
