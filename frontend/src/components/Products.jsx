@@ -1,42 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { addCart } from "../redux/action";
-
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-
-import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
+import { getAvailItems, searchItems } from "../utils/UserRoutes";
 
 const Products = () => {
-  const [data, setData] = useState([]);
-  const [filter, setFilter] = useState(data);
-  const [loading, setLoading] = useState(false);
-  let componentMounted = true;
-
-  const dispatch = useDispatch();
-
-  const addProduct = (product) => {
-    dispatch(addCart(product));
-  };
+  const [availItems, setAvailItems] = useState([]);
+  const [loading, setLoading] = useState(null);
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    const getProducts = async () => {
-      setLoading(true);
-      const response = await fetch("https://fakestoreapi.com/products/");
-      if (componentMounted) {
-        setData(await response.clone().json());
-        setFilter(await response.json());
-        setLoading(false);
-      }
-
-      return () => {
-        componentMounted = false;
-      };
-    };
-
-    getProducts();
+    fetchAvailItems();
   }, []);
+
+  const fetchAvailItems = async () => {
+    const data = await getAvailItems();
+    if (data) {
+      setAvailItems(data);
+    }
+    setLoading(false);
+  };
+
+  const handleSearch = async () => {
+    if (query.trim() === "") {
+      fetchAvailItems(); // Reset to all items if query is empty
+    } else {
+      setLoading(true);
+      const data = await searchItems(query);
+      setAvailItems(data);
+      setLoading(false);
+    }
+  };
 
   const Loading = () => {
     return (
@@ -66,111 +62,74 @@ const Products = () => {
     );
   };
 
-  const filterProduct = (cat) => {
-    const updatedList = data.filter((item) => item.category === cat);
-    setFilter(updatedList);
-  };
-
-  const ShowProducts = () => {
+  const DisplayAvailItems = () => {
     return (
       <>
-        <div className="buttons text-center py-5">
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => setFilter(data)}
-          >
-            All
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("men's clothing")}
-          >
-            Men's Clothing
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("women's clothing")}
-          >
-            Women's Clothing
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("jewelery")}
-          >
-            Jewelery
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("electronics")}
-          >
-            Electronics
-          </button>
+        <div className="row justify-content-center">
+          <div className="row">
+            {availItems.length === 0 ? (
+              <p>No items found.</p>
+            ) : (
+              availItems.map((availItem) => (
+                <div
+                  id={availItem.id}
+                  key={availItem.id}
+                  className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4"
+                  onClick={() => navigate(`/item/${availItem.id}`)} // Navigate on card click
+                  style={{ cursor: "pointer" }} // Change cursor to pointer on hover
+                >
+                  <div className="card text-center h-100" key={availItem.id}>
+                    <img
+                      className="card-img-top p-3"
+                      src={availItem.itemImage}
+                      alt="Card"
+                      height={300}
+                      style={{ objectFit: "contain" }}
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title">
+                        {availItem.itemName.substring(0, 12)}...
+                      </h5>
+                      <p className="card-text">
+                        {availItem.itemDescription.substring(0, 90)}...
+                      </p>
+                    </div>
+                    <ul className="list-group list-group-flush">
+                      <li className="list-group-item lead">
+                        $ {availItem.itemPrice}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-
-        {filter.map((product) => {
-          return (
-            <div
-              id={product.id}
-              key={product.id}
-              className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4"
-            >
-              <div className="card text-center h-100" key={product.id}>
-                <img
-                  className="card-img-top p-3"
-                  src={product.image}
-                  alt="Card"
-                  height={300}
-                />
-                <div className="card-body">
-                  <h5 className="card-title">
-                    {product.title.substring(0, 12)}...
-                  </h5>
-                  <p className="card-text">
-                    {product.description.substring(0, 90)}...
-                  </p>
-                </div>
-                <ul className="list-group list-group-flush">
-                  <li className="list-group-item lead">$ {product.price}</li>
-                  {/* <li className="list-group-item">Dapibus ac facilisis in</li>
-                    <li className="list-group-item">Vestibulum at eros</li> */}
-                </ul>
-                <div className="card-body">
-                  <Link
-                    to={"/product/" + product.id}
-                    className="btn btn-dark m-1"
-                  >
-                    Buy Now
-                  </Link>
-                  <button
-                    className="btn btn-dark m-1"
-                    onClick={() => {
-                      toast.success("Added to cart");
-                      addProduct(product);
-                    }}
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
       </>
     );
   };
+
   return (
     <>
-      <div className="container my-3 py-3">
-        <div className="row">
-          <div className="col-12">
-            <h2 className="display-5 text-center">Latest Products</h2>
-            <hr />
-          </div>
+      <Navbar />
+      <div className="container my-5">
+        <h2 className="text-center mb-4">Products and Services</h2>
+        <div className="d-flex justify-content-center align-items-center mb-4">
+          <input
+            className="form-control me-2 w-50"
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+            placeholder="Search items..."
+          />
+          <button className="btn btn-secondary" onClick={handleSearch}>
+            Search
+          </button>
         </div>
-        <div className="row justify-content-center">
-          {loading ? <Loading /> : <ShowProducts />}
-        </div>
+        {loading ? <Loading /> : <DisplayAvailItems />}
       </div>
+      <Footer />
     </>
   );
 };
