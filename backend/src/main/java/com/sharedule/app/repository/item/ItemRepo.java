@@ -10,7 +10,14 @@ import java.util.Optional;
 @Repository
 public interface ItemRepo extends MongoRepository<Item, String> {
     List<Item> findByUser(Users user);
+
     List<Item> findByUser_Id(String userId);
+
     Optional<Item> findById(String itemId);
+
     List<Item> findByItemNameContainingIgnoreCase(String itemName);
+
+    List<Item> findByItemAvailableTrue();
+
+    List<Item> findByItemNameContainingIgnoreCaseAndItemAvailableTrue(String itemName);
 }
