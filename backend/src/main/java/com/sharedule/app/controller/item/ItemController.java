@@ -1,4 +1,5 @@
 package com.sharedule.app.controller.item;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,8 +91,8 @@ public class ItemController {
 
     @GetMapping("/item/{itemId}")
     public ResponseEntity<?> viewItem(
-        @PathVariable String itemId,
-        @RequestHeader("Authorization") String token) {
+            @PathVariable String itemId,
+            @RequestHeader("Authorization") String token) {
         try {
             // Validate token format
             if (token == null || !token.startsWith("Bearer ")) {
@@ -118,14 +119,14 @@ public class ItemController {
 
             return ResponseEntity.status(HttpStatus.OK).body(itemToBeViewed);
         } catch (BackendErrorException bee) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item not found"); 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item not found");
         }
     }
 
     @GetMapping("/search")
     public ResponseEntity<?> searchItems(
-        @RequestParam String query,
-        @RequestHeader("Authorization") String token) {
+            @RequestParam String query,
+            @RequestHeader("Authorization") String token) {
 
         try {
             // Validate token format
@@ -149,13 +150,24 @@ public class ItemController {
 
             for (Item item : itemsFound) {
                 if (!user.equals(item.getUser())) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to view this item");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body("You are not authorized to view this item");
                 }
             }
 
             return ResponseEntity.status(HttpStatus.OK).body(itemsFound);
         } catch (BackendErrorException bee) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage()); 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
+        }
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<?> availableItems() {
+        try {
+            List<Item> availableItemsFound = itemService.availableItems();
+            return ResponseEntity.status(HttpStatus.OK).body(availableItemsFound);
+        } catch (BackendErrorException bee) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
         }
     }
 }
