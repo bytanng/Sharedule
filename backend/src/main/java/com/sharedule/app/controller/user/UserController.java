@@ -55,7 +55,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/user/profile")
     public AppUsers getUser(
             @RequestHeader("Authorization") String token) {
         return (AppUsers) userService.getUser(token);
@@ -122,7 +122,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/user/profile")
+    @PutMapping("/user/update-profile")
     public ResponseEntity<String> updateProfile(
             @RequestHeader("Authorization") String token,
             @RequestBody UserProfileUpdateDTO profileUpdateDTO) {

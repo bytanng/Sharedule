@@ -59,7 +59,7 @@ public class ItemController {
         }
     }
 
-    @GetMapping("/user/items")
+    @GetMapping("/items")
     public ResponseEntity<?> getUserItems(@RequestHeader("Authorization") String token) {
         try {
             // Validate token format
@@ -90,7 +90,7 @@ public class ItemController {
     }
 
     @GetMapping("/item/{itemId}")
-    public ResponseEntity<?> viewItem(
+    public ResponseEntity<?> getItem(
             @PathVariable String itemId,
             @RequestHeader("Authorization") String token) {
         try {
@@ -111,7 +111,7 @@ public class ItemController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
             }
 
-            Item itemToBeViewed = itemService.viewItem(itemId);
+            Item itemToBeViewed = itemService.getItem(itemId);
 
             if (!user.equals(itemToBeViewed.getUser())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to view this item");
@@ -123,7 +123,7 @@ public class ItemController {
         }
     }
 
-    @GetMapping("/search")
+    @GetMapping("/items/search")
     public ResponseEntity<?> searchItems(
             @RequestParam String query,
             @RequestHeader("Authorization") String token) {
@@ -162,16 +162,16 @@ public class ItemController {
     }
 
     @GetMapping("/products")
-    public ResponseEntity<?> availableItems() {
+    public ResponseEntity<?> getAvailableItems() {
         try {
-            List<Item> availableItemsFound = itemService.availableItems();
+            List<Item> availableItemsFound = itemService.getAvailableItems();
             return ResponseEntity.status(HttpStatus.OK).body(availableItemsFound);
         } catch (BackendErrorException bee) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
         }
     }
 
-    @GetMapping("/search-products")
+    @GetMapping("/products/search")
     public ResponseEntity<?> searchAvailableItems(@RequestParam String query) {
         try {
             List<Item> availableItemsFound = itemService.searchAvailableItems(query);

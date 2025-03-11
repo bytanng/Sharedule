@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Skeleton from "react-loading-skeleton";
-import { getUserItems, searchItems } from "../utils/UserRoutes";
+import { getUserItems, searchItems } from "../utils/ItemRoutes";
 
 const ViewListings = () => {
   const [items, setItems] = useState([]);

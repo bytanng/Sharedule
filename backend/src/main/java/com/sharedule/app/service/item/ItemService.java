@@ -57,7 +57,7 @@ public class ItemService {
         return repo.findByUser(user);
     }
 
-    public Item viewItem(String itemId) throws BackendErrorException {
+    public Item getItem(String itemId) throws BackendErrorException {
         try {
             Item itemToBeViewed = repo.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
             return itemToBeViewed;
@@ -78,7 +78,7 @@ public class ItemService {
         }
     }
 
-    public List<Item> availableItems() throws BackendErrorException {
+    public List<Item> getAvailableItems() throws BackendErrorException {
         try {
             List<Item> availableItemsFound = repo.findByItemAvailableTrue();
             if (availableItemsFound.isEmpty()) {
@@ -93,6 +93,7 @@ public class ItemService {
     public List<Item> searchAvailableItems(String query) throws BackendErrorException {
         try {
             List<Item> availableItemsFound = repo.findByItemNameContainingIgnoreCaseAndItemAvailableTrue(query);
+            System.out.println("At ItemSErvice: " + availableItemsFound);
             if (availableItemsFound.isEmpty()) {
                 throw new NotFoundException("The item you requested could not be found");
             }

@@ -138,7 +138,7 @@ const Navbar = () => {
                 </button>
                 <ul className="dropdown-menu" aria-labelledby="userDropdown">
                   <li>
-                    <NavLink className="dropdown-item" to="/profile">
+                    <NavLink className="dropdown-item" to="/user/profile">
                       <i className="fa fa-user-circle me-2"></i>My Profile
                     </NavLink>
                   </li>

@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { createItem, uploadImage } from "../utils/UserRoutes";
+import { uploadImage } from "../utils/UserRoutes";
+import { createItem } from "../utils/ItemRoutes";
 import { toast } from "react-hot-toast";
 
 const CreateListing = () => {
