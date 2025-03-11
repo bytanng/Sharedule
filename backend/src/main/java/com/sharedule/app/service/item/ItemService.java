@@ -102,4 +102,15 @@ public class ItemService {
             throw new BackendErrorException(nfe);
         }
     }
+
+    public String deleteItem(String id) {
+        try {
+            Item itemToBeDeleted = repo.findById(id).orElseThrow(() -> new NotFoundException("Item not found"));
+            repo.delete(itemToBeDeleted);
+            return "Item successfully deleted";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to delete item: " + e.getMessage();
+        }
+    }
 }
