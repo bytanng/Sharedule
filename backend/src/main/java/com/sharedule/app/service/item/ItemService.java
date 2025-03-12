@@ -78,26 +78,25 @@ public class ItemService {
         }
     }
 
-    public List<Item> getAvailableItems() throws BackendErrorException {
+    public List<Item> getProducts() throws BackendErrorException {
         try {
-            List<Item> availableItemsFound = repo.findByItemAvailableTrue();
-            if (availableItemsFound.isEmpty()) {
+            List<Item> productsFound = repo.findByItemAvailableTrue();
+            if (productsFound.isEmpty()) {
                 throw new NotFoundException("There are no available items.");
             }
-            return availableItemsFound;
+            return productsFound;
         } catch (NotFoundException nfe) {
             throw new BackendErrorException(nfe);
         }
     }
 
-    public List<Item> searchAvailableItems(String query) throws BackendErrorException {
+    public List<Item> searchProducts(String query) throws BackendErrorException {
         try {
-            List<Item> availableItemsFound = repo.findByItemNameContainingIgnoreCaseAndItemAvailableTrue(query);
-            System.out.println("At ItemSErvice: " + availableItemsFound);
-            if (availableItemsFound.isEmpty()) {
+            List<Item> productsFound = repo.findByItemNameContainingIgnoreCaseAndItemAvailableTrue(query);
+            if (productsFound.isEmpty()) {
                 throw new NotFoundException("The item you requested could not be found");
             }
-            return availableItemsFound;
+            return productsFound;
         } catch (NotFoundException nfe) {
             throw new BackendErrorException(nfe);
         }
