@@ -3,33 +3,33 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Skeleton from "react-loading-skeleton";
-import { getAvailItems, searchAvailItems } from "../utils/ItemRoutes";
+import { getProducts, searchProducts } from "../utils/ItemRoutes";
 
 const Products = () => {
-  const [availItems, setAvailItems] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(null);
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    fetchAvailItems();
+    fetchProducts();
   }, []);
 
-  const fetchAvailItems = async () => {
-    const data = await getAvailItems();
+  const fetchProducts = async () => {
+    const data = await getProducts();
     if (data) {
-      setAvailItems(data);
+      setProducts(data);
     }
     setLoading(false);
   };
 
   const handleSearch = async () => {
     if (query.trim() === "") {
-      fetchAvailItems(); // Reset to all items if query is empty
+      fetchProducts(); // Reset to all items if query is empty
     } else {
       setLoading(true);
-      const data = await searchAvailItems(query);
-      setAvailItems(data);
+      const data = await searchProducts(query);
+      setProducts(data);
       setLoading(false);
     }
   };
@@ -62,41 +62,41 @@ const Products = () => {
     );
   };
 
-  const DisplayAvailItems = () => {
+  const DisplayProducts = () => {
     return (
       <>
         <div className="row justify-content-center">
           <div className="row">
-            {availItems.length === 0 ? (
+            {products.length === 0 ? (
               <p>No items found.</p>
             ) : (
-              availItems.map((availItem) => (
+              products.map((product) => (
                 <div
-                  id={availItem.id}
-                  key={availItem.id}
+                  id={product.id}
+                  key={product.id}
                   className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4"
-                  onClick={() => navigate(`/item/${availItem.id}`)} // Navigate on card click
+                  onClick={() => navigate(`/product/${product.id}`)} // Navigate on card click
                   style={{ cursor: "pointer" }} // Change cursor to pointer on hover
                 >
-                  <div className="card text-center h-100" key={availItem.id}>
+                  <div className="card text-center h-100" key={product.id}>
                     <img
                       className="card-img-top p-3"
-                      src={availItem.itemImage}
+                      src={product.itemImage}
                       alt="Card"
                       height={300}
                       style={{ objectFit: "contain" }}
                     />
                     <div className="card-body">
                       <h5 className="card-title">
-                        {availItem.itemName.substring(0, 12)}...
+                        {product.itemName.substring(0, 12)}...
                       </h5>
                       <p className="card-text">
-                        {availItem.itemDescription.substring(0, 90)}...
+                        {product.itemDescription.substring(0, 90)}...
                       </p>
                     </div>
                     <ul className="list-group list-group-flush">
                       <li className="list-group-item lead">
-                        $ {availItem.itemPrice}
+                        $ {product.itemPrice}
                       </li>
                     </ul>
                   </div>
@@ -130,7 +130,7 @@ const Products = () => {
           </div>
         </div>
         <hr />
-        {loading ? <Loading /> : <DisplayAvailItems />}
+        {loading ? <Loading /> : <DisplayProducts />}
       </div>
       <Footer />
     </>

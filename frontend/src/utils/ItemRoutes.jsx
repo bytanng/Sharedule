@@ -101,7 +101,7 @@ export const searchItems = async (query) => {
   }
 };
 
-export const getAvailItems = async () => {
+export const getProducts = async () => {
   try {
     const response = await fetch(`${API_URL}/products`, {
       method: GET_METHOD,
@@ -123,7 +123,18 @@ export const getAvailItems = async () => {
   }
 };
 
-export const searchAvailItems = async (query) => {
+export const getProduct = async (id) => {
+  const response = await fetch(`${API_URL}/product/${id}`, {
+    method: GET_METHOD,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return await response.json();
+};
+
+export const searchProducts = async (query) => {
   try {
     const response = await fetch(`${API_URL}/products/search?query=${query}`, {
       method: GET_METHOD,

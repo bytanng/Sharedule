@@ -162,20 +162,30 @@ public class ItemController {
     }
 
     @GetMapping("/products")
-    public ResponseEntity<?> getAvailableItems() {
+    public ResponseEntity<?> getProducts() {
         try {
-            List<Item> availableItemsFound = itemService.getAvailableItems();
-            return ResponseEntity.status(HttpStatus.OK).body(availableItemsFound);
+            List<Item> productsFound = itemService.getProducts();
+            return ResponseEntity.status(HttpStatus.OK).body(productsFound);
         } catch (BackendErrorException bee) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
         }
     }
 
-    @GetMapping("/products/search")
-    public ResponseEntity<?> searchAvailableItems(@RequestParam String query) {
+    @GetMapping("/product/{itemId}")
+    public ResponseEntity<?> getProduct(@PathVariable String itemId) {
         try {
-            List<Item> availableItemsFound = itemService.searchAvailableItems(query);
-            return ResponseEntity.status(HttpStatus.OK).body(availableItemsFound);
+            Item productFound = itemService.getItem(itemId);
+            return ResponseEntity.status(HttpStatus.OK).body(productFound);
+        } catch (BackendErrorException bee) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item not found");
+        }
+    }
+
+    @GetMapping("/products/search")
+    public ResponseEntity<?> searchProducts(@RequestParam String query) {
+        try {
+            List<Item> productsFound = itemService.searchProducts(query);
+            return ResponseEntity.status(HttpStatus.OK).body(productsFound);
         } catch (BackendErrorException bee) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bee.getMessage());
         }
