@@ -9,3 +9,4 @@ export { default as PageNotFound } from "./PageNotFound";
 export { default as ForgetPassword } from "./ForgetPassword";
 export { default as Profile } from "./Profile";
 export { default as Item } from "./Item";
+export { default as Product } from "./Product";
