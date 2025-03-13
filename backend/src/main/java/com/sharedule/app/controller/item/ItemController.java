@@ -37,7 +37,6 @@ public class ItemController {
             if (token == null || !token.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
             }
-            System.out.println("DEBUG - TESTTT");
             // Extract and validate token
             String jwtToken = token.substring(7);
             if (jwtService.isTokenExpired(jwtToken)) {
