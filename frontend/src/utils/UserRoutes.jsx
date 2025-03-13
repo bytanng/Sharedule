@@ -62,7 +62,7 @@ export const logout = async (token) => {
 
 export const updateProfile = async (token, profile) => {
   try {
-    const response = await fetch(`${API_URL}/user/profile`, {
+    const response = await fetch(`${API_URL}/user/update-profile`, {
       method: PUT_METHOD,
       headers: {
         "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export const getAllUsers = async () => {
 
 export const getUser = async (token) => {
   try {
-    const response = await fetch(`${API_URL}/profile`, {
+    const response = await fetch(`${API_URL}/user/profile`, {
       method: GET_METHOD,
       headers: {
         "Content-Type": "application/json",
@@ -203,64 +203,5 @@ export const resetPassword = async (resetPasswordDTO) => {
     return await response.text();
   } catch (error) {
     return "Password reset failed";
-  }
-};
-
-export const createItem = async (itemData) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`${API_URL}/create-item`, {
-      method: POST_METHOD,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(itemData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(errorData);
-    }
-
-    const data = await response.json();
-    return { success: true, data };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || "Failed to create item",
-    };
-  }
-};
-
-export const getUserItems = async () => {
-  const token = localStorage.getItem("token"); // Retrieve token from localStorage
-
-  if (!token) {
-    console.error("No authentication token found");
-    return null;
-  }
-
-  try {
-    const response = await fetch(`${API_URL}/user/items`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${await response.text()}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Failed to fetch user items:", error.message);
-    return null;
   }
 };

@@ -8,11 +8,10 @@ import store from "./redux/store";
 import CreateListing from "./components/CreateListing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ViewListings from "./components/ViewListings";
+import Products from "./components/Products";
 
 import {
   Home,
-  Product,
-  Products,
   AboutPage,
   ContactPage,
   Cart,
@@ -23,6 +22,7 @@ import {
   ForgetPassword,
   Profile,
   Item,
+  Product,
 } from "./pages";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
@@ -36,8 +36,6 @@ root.render(
       <Provider store={store}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/product" element={<Products />} />
-          <Route path="/product/:id" element={<Product />} />
           <Route
             path="/item/:id"
             element={
@@ -79,8 +77,9 @@ root.render(
           <Route path="/forgetpassword" element={<ForgetPassword />} />
           <Route path="/resetpassword/:token" element={<ResetPassword />} />
           <Route path="*" element={<PageNotFound />} />
-          <Route path="/product/*" element={<PageNotFound />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/user/profile" element={<Profile />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/product/:id" element={<Product />} />
         </Routes>
       </Provider>
     </ScrollToTop>
