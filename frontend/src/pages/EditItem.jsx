@@ -88,7 +88,7 @@ const EditItem = () => {
             toast.success('Item updated successfully!');
             navigate(`/item/${id}`);
         } else {
-            toast.error(result.error);
+            toast.error('Failed to edit item');
         }
     }
 
