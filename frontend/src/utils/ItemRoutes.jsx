@@ -1,4 +1,4 @@
-import { API_URL, POST_METHOD, GET_METHOD, DELETE_METHOD } from "./Constants";
+import { API_URL, POST_METHOD, GET_METHOD, DELETE_METHOD, PUT_METHOD } from "./Constants";
 
 export const createItem = async (itemData) => {
   try {
