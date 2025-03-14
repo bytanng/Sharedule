@@ -270,7 +270,7 @@ public class ItemController {
             }
 
             // Retrieve the item
-            Item existingItem = itemService.viewItem(itemId);
+            Item existingItem = itemService.getItem(itemId);
             if (existingItem == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item not found");
             }
