@@ -22,7 +22,6 @@ public class EditItemDTO {
 
     private Boolean itemAvailable;
 
-    @Null
     @Pattern(regexp = "^(http|https)://.*$", message = "Invalid image URL format")
     private String itemImage;
 }
