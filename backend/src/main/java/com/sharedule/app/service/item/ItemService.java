@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.sharedule.app.model.item.Item;
 import com.sharedule.app.model.user.Users;
 import com.sharedule.app.dto.CreateItemDTO;
+import com.sharedule.app.dto.EditItemDTO;
 import com.sharedule.app.exception.NotFoundException;
 import com.sharedule.app.exception.BackendErrorException;
 import com.sharedule.app.repository.item.ItemRepo;
@@ -51,6 +52,30 @@ public class ItemService {
         item.setUser(user);
 
         return repo.save(item);
+    }
+
+    public Item updateItem(Item existingItem, EditItemDTO updatedItem) {
+        // Update fields only if provided in the request
+        if (updatedItem.getItemName() != null) {
+            existingItem.setItemName(updatedItem.getItemName());
+        }
+        if (updatedItem.getItemDescription() != null) {
+            existingItem.setItemDescription(updatedItem.getItemDescription());
+        }
+        if (updatedItem.getItemPrice() != null) {
+            existingItem.setItemPrice(updatedItem.getItemPrice());
+        }
+        if (updatedItem.getItemStock() != null) {
+            existingItem.setItemStock(updatedItem.getItemStock());
+        }
+        if (updatedItem.getItemImage() != null) {
+            existingItem.setItemImage(updatedItem.getItemImage());
+        }
+        if (updatedItem.getItemAvailable() != null) {
+            existingItem.setItemAvailable(updatedItem.getItemAvailable());
+        }
+        System.out.println("INFO - Successfully updated item");
+        return repo.save(existingItem);
     }
 
     public List<Item> getItemsByUser(Users user) {

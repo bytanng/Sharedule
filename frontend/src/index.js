@@ -27,6 +27,7 @@ import {
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import ResetPassword from "./pages/ResetPassword";
+import EditItem from "./pages/EditItem";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -40,6 +41,14 @@ root.render(
             element={
               <ProtectedRoute>
                 <Item />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/item/edit/:id"
+            element={
+              <ProtectedRoute>
+                <EditItem />
               </ProtectedRoute>
             }
           />

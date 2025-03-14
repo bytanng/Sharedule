@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.sharedule.app.dto.CreateItemDTO;
+import com.sharedule.app.dto.EditItemDTO;
 import com.sharedule.app.exception.BackendErrorException;
 import com.sharedule.app.service.user.UserService;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,6 @@ public class ItemController {
             if (token == null || !token.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
             }
-
             // Extract and validate token
             String jwtToken = token.substring(7);
             if (jwtService.isTokenExpired(jwtToken)) {
@@ -243,6 +243,50 @@ public class ItemController {
             }
         } catch (BackendErrorException bee) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item not found");
+        }
+    }
+
+    @PutMapping("/item/{itemId}")
+    public ResponseEntity<?> editItem(
+            @PathVariable String itemId,
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody EditItemDTO updatedItem) {
+        try {
+            // Validate token format
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
+            }
+
+            // Extract and validate token
+            String jwtToken = token.substring(7);
+            if (jwtService.isTokenExpired(jwtToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+            }
+
+            // Get user from token
+            Users user = userService.getUser(token);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            // Retrieve the item
+            Item existingItem = itemService.viewItem(itemId);
+            if (existingItem == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item not found");
+            }
+
+            // Check if the user is the owner of the item
+            if (!existingItem.getUser().equals(user)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to edit this item");
+            }
+
+            // Update item details
+            Item updatedItemEntity = itemService.updateItem(existingItem, updatedItem);
+
+            return ResponseEntity.ok(updatedItemEntity);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while updating the item: " + e.getMessage());
         }
     }
 }
