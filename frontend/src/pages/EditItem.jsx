@@ -26,6 +26,7 @@ const EditItem = () => {
         const showItem = async () => {
             try {
                 const data = await getItem(id);
+                setImagePreviewUrl(data?.itemImage);
                 setFormData({
                     itemName: data.itemName,
                     itemDescription: data.itemDescription,
