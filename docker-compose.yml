@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend  # Path to your backend directory
+      dockerfile: Dockerfile  # Specify the Dockerfile for the backend
+    container_name: my-backend-container
+    ports:
+      - "8080:8080"  # Map the backend port to the host machine
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev  # Example environment variable (adjust as needed)
+    networks:
+      - my-network
+    env_file:
+      - ./backend/.env
+
+  frontend:
+    build:
+      context: ./frontend  # Path to your frontend directory
+      dockerfile: Dockerfile  # Specify the Dockerfile for the frontend
+    container_name: my-frontend-container
+    ports:
+      - "3000:80"  # Map the frontend port to the host machine
+    depends_on:
+      - backend  # Ensure backend is up before frontend starts
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge  # Use the default bridge network for communication between frontend and backend
