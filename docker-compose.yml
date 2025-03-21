@@ -13,8 +13,8 @@ services:
     networks:
       - my-network
     env_file:
-      - ./backend/.env
-
+      - .\backend\.env
+    
   frontend:
     build:
       context: ./frontend  # Path to your frontend directory
