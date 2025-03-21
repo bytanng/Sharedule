@@ -12,6 +12,11 @@ Start the server
   npm start
 ```
 
+## Dockerization
+```
+  docker-compose up --build
+```
+
 
 
 ## Tech Stack
