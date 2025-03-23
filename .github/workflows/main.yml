@@ -3,10 +3,10 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
+      - containerization
   pull_request:
     branches:
-      - main
+      - containerization
 
 jobs:
   build-and-test:
