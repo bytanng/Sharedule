@@ -60,6 +60,10 @@ jobs:
         run: |
           docker ps -a
 
+      - name: Check docker logs
+        run: |
+          docker-compose logs backend
+
       - name: Check Backend Logs
         run: docker logs my-backend-container
         
