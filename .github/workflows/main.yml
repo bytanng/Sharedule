@@ -54,7 +54,6 @@ jobs:
 
       - name: Run Docker Compose from root
         run: |
-          cd ..
           docker-compose -f docker-compose.yml up -d
 
       - name: Wait for MongoDB to Start
