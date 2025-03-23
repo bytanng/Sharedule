@@ -15,8 +15,7 @@ services:
       - my-network
     depends_on:
       - mongodb
-    env_file:
-      - ./backend/.env
+
 
   frontend:
     build:
