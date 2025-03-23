@@ -16,15 +16,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Remove conflicting Docker and containerd packages
-        run: |
-          sudo apt-get remove -y docker docker-engine docker.io containerd containerd.io
-
-      - name: Clean up package lists
-        run: |
-          sudo apt-get clean
-          sudo apt-get update
-
       - name: Install Docker
         run: |
           sudo apt-get update
@@ -43,7 +34,9 @@ jobs:
           docker-compose --version
 
       - name: Run Docker Compose
-        run: docker-compose up -d
+        run: |
+          # Use the -f flag to specify the path to the docker-compose.yml file in the root directory
+          docker-compose -f ../docker-compose.yml up -d  # Navigate up one directory from the workflow to the root
 
       - name: Wait for MongoDB to Start
         run: sleep 10
@@ -53,4 +46,5 @@ jobs:
           docker exec my-backend-container ./gradlew test
 
       - name: Shut Down Docker Compose
-        run: docker-compose down
+        run: |
+          docker-compose -f ../docker-compose.yml down  # Clean up by stopping the containers
