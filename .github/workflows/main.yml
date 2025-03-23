@@ -60,13 +60,13 @@ jobs:
         run: |
           docker ps -a
 
+      - name: Check Backend Logs
+        run: docker logs my-backend-container
+        
       - name: Install curl in Backend Container
         run: |
           docker exec my-backend-container apt-get update
           docker exec my-backend-container apt-get install -y curl
-
-      - name: Check Backend Logs
-        run: docker logs my-backend-container
 
       - name: Wait for Backend Container to be Ready
         run: |
