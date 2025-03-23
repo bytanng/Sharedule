@@ -44,14 +44,14 @@ jobs:
 
       - name: Run Docker Compose
         run: |
-          docker-compose -f ../docker-compose.yml up -d
+          docker-compose -f ./docker-compose.yml up -d
 
       - name: Wait for MongoDB to Start
         run: sleep 10
 
       - name: Run Backend Unit Tests
         run: |
-          docker exec my-backend-container ./gradlew test
+          docker exec my-backend-container mvn test
 
       - name: Shut Down Docker Compose
         run: |
