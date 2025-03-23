@@ -55,6 +55,10 @@ jobs:
       - name: Run Docker Compose from root
         run: |
           docker-compose -f docker-compose.yml up -d
+          
+      - name: Check if Backend Container is Running
+        run: |
+          docker ps -a
 
       - name: Wait for MongoDB to Start
         run: sleep 10
