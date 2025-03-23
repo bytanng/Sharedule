@@ -18,6 +18,7 @@ jobs:
 
       - name: Install Docker
         run: |
+          sudo apt-get clean
           sudo apt-get remove --purge containerd
           sudo apt-get install containerd.io
           sudo apt-get update
