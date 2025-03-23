@@ -21,17 +21,18 @@ jobs:
           echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" >> $GITHUB_ENV
           echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> $GITHUB_ENV
           
-      - name: Set environment variables
+      - name: Create .env file
         run: |
-          echo "TESTING_URL=${{ secrets.TESTING_URL }}" >> $GITHUB_ENV
-          echo "DEV_URL=${{ secrets.DEV_URL }}" >> $GITHUB_ENV
-          echo "PROD_URL=${{ secrets.PROD_URL }}" >> $GITHUB_ENV
-          echo "LOCAL_URL=${{ secrets.LOCAL_URL }}" >> $GITHUB_ENV
-          echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
-          echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> $GITHUB_ENV
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
-          echo "AWS_S3_URL=${{ secrets.AWS_S3_URL }}" >> $GITHUB_ENV
+          echo "TESTING_URL=${{ secrets.TESTING_URL }}" > .env
+          echo "DEV_URL=${{ secrets.DEV_URL }}" >> .env
+          echo "PROD_URL=${{ secrets.PROD_URL }}" >> .env
+          echo "LOCAL_URL=${{ secrets.LOCAL_URL }}" >> .env
+          echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "AWS_S3_URL=${{ secrets.AWS_S3_URL }}" >> .env
+
           
       - name: Install Docker
         run: |
