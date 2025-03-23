@@ -33,10 +33,17 @@ jobs:
           docker --version
           docker-compose --version
 
+      - name: Build Backend Image
+        run: |
+          docker build ./backend --file ./backend/Dockerfile --tag backend-image:$(date +%s)
+
+      - name: Build Frontend Image
+        run: |
+          docker build ./frontend --file ./frontend/Dockerfile --tag frontend-image:$(date +%s)
+
       - name: Run Docker Compose
         run: |
-          # Use the -f flag to specify the path to the docker-compose.yml file in the root directory
-          docker-compose -f ../docker-compose.yml up -d  # Navigate up one directory from the workflow to the root
+          docker-compose -f ../docker-compose.yml up -d
 
       - name: Wait for MongoDB to Start
         run: sleep 10
@@ -47,4 +54,4 @@ jobs:
 
       - name: Shut Down Docker Compose
         run: |
-          docker-compose -f ../docker-compose.yml down  # Clean up by stopping the containers
+          docker-compose -f ../docker-compose.yml down
