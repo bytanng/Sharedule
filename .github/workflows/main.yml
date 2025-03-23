@@ -1,0 +1,50 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Verify Docker installation
+        run: |
+          docker --version
+          docker-compose --version
+
+      - name: Run Docker Compose
+        run: |
+          # Use the -f flag to specify the path to the docker-compose.yml file in the root directory
+          docker-compose -f ../docker-compose.yml up -d  # Navigate up one directory from the workflow to the root
+
+      - name: Wait for MongoDB to Start
+        run: sleep 10
+
+      - name: Run Backend Unit Tests
+        run: |
+          docker exec my-backend-container ./gradlew test
+
+      - name: Shut Down Docker Compose
+        run: |
+          docker-compose -f ../docker-compose.yml down  # Clean up by stopping the containers
