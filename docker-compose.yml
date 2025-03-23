@@ -3,30 +3,49 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./backend  # Path to your backend directory
-      dockerfile: Dockerfile  # Specify the Dockerfile for the backend
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: my-backend-container
     ports:
-      - "8080:8080"  # Map the backend port to the host machine
+      - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev  # Example environment variable (adjust as needed)
+      - SPRING_PROFILES_ACTIVE=dev
+      - MONGO_URI=mongodb://mongodb:27017/sharedule  # Use service name, not localhost
     networks:
       - my-network
+    depends_on:
+      - mongodb
     env_file:
-      - .\backend\.env
-    
+      - ./backend/.env
+
   frontend:
     build:
-      context: ./frontend  # Path to your frontend directory
-      dockerfile: Dockerfile  # Specify the Dockerfile for the frontend
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: my-frontend-container
     ports:
-      - "3000:80"  # Map the frontend port to the host machine
+      - "3000:80"
     depends_on:
-      - backend  # Ensure backend is up before frontend starts
+      - backend
     networks:
       - my-network
 
+  mongodb:
+    image: mongo:latest
+    container_name: my-mongo-container
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+    networks:
+      - my-network
+    volumes:
+      - mongo-data:/data/db  # Persist MongoDB data
+
 networks:
   my-network:
-    driver: bridge  # Use the default bridge network for communication between frontend and backend
+    driver: bridge
+
+volumes:
+  mongo-data:
