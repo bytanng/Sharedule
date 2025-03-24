@@ -65,9 +65,10 @@ jobs:
           pwd
           ls -la
 
-      - name: Run Docker Compose from root
+      - name: Run Docker Compose with .env
         run: |
-          docker-compose --env-file .env -f docker-compose.yml up -d
+          docker-compose --env-file /home/runner/work/Sharedule/Sharedule/.env -f docker-compose.yml up -d
+
           
       - name: Inspect Backend Container
         run: |
