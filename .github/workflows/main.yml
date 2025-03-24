@@ -68,13 +68,7 @@ jobs:
       - name: Run Docker Compose with .env
         run: |
           docker-compose --env-file /home/runner/work/Sharedule/Sharedule/.env -f docker-compose.yml up -d
-
-          
-      - name: Inspect Backend Container
-        run: |
-          docker exec -it my-backend-container /bin/sh -c "ls -la /app && cat /app/.env"
-
-          
+       
       - name: Check if Backend Container is Running
         run: |
           docker ps -a
