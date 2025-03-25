@@ -93,15 +93,7 @@ jobs:
       - name: Install curl in Backend Container
         run: |
           docker exec my-backend-container apt-get update
-          docker exec my-backend-container apt-get install -y curl
-
-      - name: Wait for Backend Container to be Ready
-        run: |
-          until docker exec my-backend-container curl --silent --fail http://localhost:8080/health; do
-            echo "Waiting for backend to be ready..."
-            sleep 10  # Sleep a bit before retrying
-          done
-
+          docker exec my-backend-container apt-get install -y 
       - name: Wait for MongoDB to Start
         run: sleep 10
 
