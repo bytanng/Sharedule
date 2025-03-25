@@ -1,7 +1,7 @@
 # Step 1: Build the application using OpenJDK 21 and Maven installed manually
 FROM openjdk:21-jdk-slim AS build
 
-# Install Maven
+# Install Maven in the build stage
 RUN apt-get update && apt-get install -y maven
 
 # Set the working directory to /src
@@ -18,11 +18,13 @@ RUN ls -l /src/target
 # Step 2: Use a fresh OpenJDK 21 image to run the application
 FROM openjdk:21-jdk-slim
 
+# ✅ Install Maven in the final container (needed for running tests)
+RUN apt-get update && apt-get install -y maven
+
 # Set the working directory
 WORKDIR /
 
 # Copy the built application (JAR) from the build stage
-# The JAR file is located in /target directory after the build process
 COPY --from=build /src/target/sharedule-0.0.1-SNAPSHOT.jar /target/ShareduleApplication.jar
 
 # Expose the port that the Spring Boot application will run on
