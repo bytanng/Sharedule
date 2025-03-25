@@ -5,7 +5,7 @@ FROM openjdk:21-jdk-slim AS build
 RUN apt-get update && apt-get install -y maven
 
 # Set the working directory to /src
-WORKDIR /src
+WORKDIR /
 
 # ✅ Copy only pom.xml first (for better caching)
 COPY pom.xml .
@@ -23,13 +23,13 @@ RUN mvn clean package -DskipTests
 FROM openjdk:21-jdk-slim
 
 # ✅ Set the working directory where pom.xml exists
-WORKDIR /src
+WORKDIR /
 
 # Copy built JAR
-COPY --from=build /src/target/sharedule-0.0.1-SNAPSHOT.jar /target/ShareduleApplication.jar
+COPY --from=build /target/sharedule-0.0.1-SNAPSHOT.jar /target/ShareduleApplication.jar
 
 # Copy `pom.xml` for testing
-COPY --from=build /src/pom.xml /target/pom.xml
+COPY --from=build /pom.xml /target/pom.xml
 
 # Install Maven in the final container
 RUN apt-get update && apt-get install -y maven
