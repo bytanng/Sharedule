@@ -68,6 +68,16 @@ jobs:
       - name: Run Docker Compose with .env
         run: |
           docker-compose --env-file /home/runner/work/Sharedule/Sharedule/.env -f docker-compose.yml up -d
+        env:
+          TESTING_URL: ${{ secrets.TESTING_URL }}
+          DEV_URL: ${{ secrets.DEV_URL }}
+          PROD_URL: ${{ secrets.PROD_URL }}
+          LOCAL_URL: ${{ secrets.LOCAL_URL }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_URL: ${{ secrets.AWS_S3_URL }}          
        
       - name: Check if Backend Container is Running
         run: |
