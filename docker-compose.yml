@@ -9,14 +9,22 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - MONGO_URI=mongodb://mongodb:27017/sharedule  # Use service name, not localhost
+      TESTING_URL: ${TESTING_URL}
+      DEV_URL: ${DEV_URL}
+      PROD_URL: ${PROD_URL}
+      LOCAL_URL: ${LOCAL_URL}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_URL: ${AWS_S3_URL}
     networks:
       - my-network
+    env_file:
+      - .env  # Ensure this references your .env file
     depends_on:
       - mongodb
-    env_file:
-      - ./backend/.env
+
 
   frontend:
     build:
@@ -42,6 +50,7 @@ services:
       - my-network
     volumes:
       - mongo-data:/data/db  # Persist MongoDB data
+
 
 networks:
   my-network:

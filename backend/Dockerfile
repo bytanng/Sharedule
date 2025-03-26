@@ -1,31 +1,40 @@
-# Step 1: Build the application using OpenJDK 21 and Maven installed manually
+# Step 1: Build the application using OpenJDK 21 and Maven
 FROM openjdk:21-jdk-slim AS build
 
-# Install Maven
+# Install Maven in the build stage
 RUN apt-get update && apt-get install -y maven
 
-# Set the working directory to /src
-WORKDIR /src
+# ✅ Set the working directory to root since pom.xml is in the root
+WORKDIR /
 
-# Copy the project files into the container
+# ✅ Copy only pom.xml first (for better caching)
+COPY pom.xml .
+
+# ✅ Download dependencies early (faster builds)
+RUN mvn dependency:go-offline
+
+# Copy the rest of the project
 COPY . .
 
 # Build the application with Maven (skip tests to speed up the build)
 RUN mvn clean package -DskipTests
 
-RUN ls -l /src/target
-
 # Step 2: Use a fresh OpenJDK 21 image to run the application
 FROM openjdk:21-jdk-slim
 
-# Set the working directory
+# ✅ Set the working directory to root where pom.xml and target exist
 WORKDIR /
 
-# Copy the built application (JAR) from the build stage
-# The JAR file is located in /target directory after the build process
-COPY --from=build /src/target/sharedule-0.0.1-SNAPSHOT.jar /target/ShareduleApplication.jar
+# Copy built JAR from the build stage
+COPY --from=build /target/sharedule-0.0.1-SNAPSHOT.jar /target/ShareduleApplication.jar
 
-# Expose the port that the Spring Boot application will run on
+# Copy `pom.xml` for testing
+COPY --from=build /pom.xml /pom.xml
+
+# Install Maven in the final container (if you want to run tests inside)
+RUN apt-get update && apt-get install -y maven
+
+# Expose the port for Spring Boot
 EXPOSE 8080
 
 # Run the Spring Boot application

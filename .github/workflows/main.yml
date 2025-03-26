@@ -1,0 +1,106 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - containerization
+  pull_request:
+    branches:
+      - containerization
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set MongoDB environment variables
+        run: |
+          echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" >> $GITHUB_ENV
+          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> $GITHUB_ENV
+          
+      - name: Create .env file
+        run: |
+          echo "TESTING_URL=${{ secrets.TESTING_URL }}" > .env
+          echo "DEV_URL=${{ secrets.DEV_URL }}" >> .env
+          echo "PROD_URL=${{ secrets.PROD_URL }}" >> .env
+          echo "LOCAL_URL=${{ secrets.LOCAL_URL }}" >> .env
+          echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "AWS_S3_URL=${{ secrets.AWS_S3_URL }}" >> .env
+
+          
+      - name: Install Docker
+        run: |
+          sudo apt-get remove containerd.io
+          sudo apt install docker.io docker-compose -y
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Verify Docker installation
+        run: |
+          docker --version
+          docker-compose --version
+
+      - name: Build Backend Image
+        run: |
+          docker build ./backend --file ./backend/Dockerfile --tag backend-image:$(date +%s)
+
+      - name: Build Frontend Image
+        run: |
+          docker build ./frontend --file ./frontend/Dockerfile --tag frontend-image:$(date +%s)
+          
+      - name: Verify current directory
+        run: |
+          pwd
+          ls -la
+
+      - name: Run Docker Compose with .env
+        run: |
+          docker-compose --env-file /home/runner/work/Sharedule/Sharedule/.env -f docker-compose.yml up -d
+        env:
+          TESTING_URL: ${{ secrets.TESTING_URL }}
+          DEV_URL: ${{ secrets.DEV_URL }}
+          PROD_URL: ${{ secrets.PROD_URL }}
+          LOCAL_URL: ${{ secrets.LOCAL_URL }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_URL: ${{ secrets.AWS_S3_URL }}          
+       
+      - name: Check if Backend Container is Running
+        run: |
+          docker ps -a
+
+      - name: Check docker logs
+        run: |
+          docker-compose logs backend
+
+      - name: Check Backend Logs
+        run: docker logs my-backend-container
+        
+      - name: Install curl in Backend Container
+        run: |
+          docker exec my-backend-container apt-get update
+          docker exec my-backend-container apt-get install -y 
+      - name: Wait for MongoDB to Start
+        run: sleep 10
+
+      - name: Run Backend Unit Tests
+        run: |
+          docker exec my-backend-container mvn test
+
+      - name: Shut Down Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml down
