@@ -124,6 +124,20 @@
 			<artifactId>aws-java-sdk-s3</artifactId>
 			<version>1.11.486</version>
 		</dependency>
+		<!-- Mockito for mocking dependencies in unit tests -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.14.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Spring Security Test for testing Spring Security components -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
