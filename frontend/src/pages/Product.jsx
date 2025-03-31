@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Footer, Navbar } from "../components";
 import Skeleton from "react-loading-skeleton";
 import { getProduct } from "../utils/ItemRoutes";
@@ -8,8 +8,6 @@ const Product = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const showProduct = async () => {
