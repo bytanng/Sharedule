@@ -23,6 +23,7 @@ import {
   Profile,
   Item,
   Product,
+  CreateTransaction,
 } from "./pages";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
@@ -80,6 +81,10 @@ root.render(
           <Route path="/user/profile" element={<Profile />} />
           <Route path="/products" element={<Products />} />
           <Route path="/product/:id" element={<Product />} />
+          <Route
+            path="/create-transaction/:id"
+            element={<CreateTransaction />}
+          />
         </Routes>
       </Provider>
     </ScrollToTop>
