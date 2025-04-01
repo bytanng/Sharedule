@@ -4,14 +4,19 @@ import { Footer, Navbar } from "../components";
 import Skeleton from "react-loading-skeleton";
 import { getItem, deleteItem } from "../utils/ItemRoutes";
 import DeleteModal from "../components/DeleteModal";
+import { getUserTransactions } from "../utils/TransactionRoutes";
+import { getTimeslotByTransaction } from "../utils/TimeslotRoutes";
+import dayjs from "dayjs";
 
 const Item = () => {
-
   const navigate = useNavigate();
   const { id } = useParams();
   const [item, setItem] = useState(null);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [expandedTransaction, setExpandedTransaction] = useState(null); // Track the expanded transaction
+  const [timeslotDetails, setTimeslotDetails] = useState({});
 
   useEffect(() => {
     const showItem = async () => {
@@ -19,10 +24,13 @@ const Item = () => {
 
       try {
         const data = await getItem(id);
+        const transactions = await getUserTransactions();
 
         setItem(data);
+        setTransactions(transactions);
       } catch (error) {
         setItem(null);
+        setTransactions([]);
       }
 
       setLoading(false);
@@ -48,8 +56,27 @@ const Item = () => {
   }
 
   const routeToEditItem = () => {
-    navigate(`/item/edit/${id}`)
-  }
+    navigate(`/item/edit/${id}`);
+  };
+
+  const routeToCreateTransaction = () => {
+    navigate(`/create-transaction/${id}`);
+  };
+
+  const handleDateFormat = (isoString) => {
+    return dayjs(isoString).format("DD/MM/YYYY, HH:mm");
+  };
+
+  const toggleTransactionDetails = (transactionName) => {
+    setExpandedTransaction(
+      expandedTransaction === transactionName ? null : transactionName
+    );
+  };
+
+  const handleTimeslotDetails = async (transactionId) => {
+    const timeslot = await getTimeslotByTransaction(transactionId);
+    setTimeslotDetails(timeslot);
+  };
 
   const Loading =
     (() => {
@@ -99,7 +126,10 @@ const Item = () => {
               <h1 className="display-5">{item.itemName}</h1>
               <h3 className="display-6  my-4">${item.itemPrice}</h3>
               <p className="lead">{item.itemDescription}</p>
-              <button className="btn btn-primary m-1" onClick={() => routeToEditItem()}>
+              <button
+                className="btn btn-primary m-1"
+                onClick={() => routeToEditItem()}
+              >
                 Edit Item
               </button>
               <button
@@ -109,6 +139,78 @@ const Item = () => {
                 Delete Item
               </button>
             </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="d-flex justify-content-between align-items-center mt-5">
+              <h2>Availabilities</h2>
+              <button
+                className="btn btn-primary"
+                onClick={routeToCreateTransaction}
+              >
+                Create Transaction
+              </button>
+            </div>
+            {transactions.length > 0 ? (
+              <ul className="list-group mt-3">
+                {transactions.map((transaction) => {
+                  const isReserved =
+                    transaction.buyerId !== null && transaction.buyerId !== "";
+
+                  return (
+                    <li
+                      key={transaction.transactionName}
+                      className="list-group-item justify-content-between align-items-center mb-2 p-3 fs-5 
+                      border border-2 border-dark"
+                      style={{
+                        cursor: "pointer",
+                        borderRadius: "8px",
+                        borderTop: "2px solid black",
+                      }}
+                      onClick={() => {
+                        toggleTransactionDetails(transaction.transactionName);
+                        handleTimeslotDetails(transaction.id);
+                      }}
+                    >
+                      <div className="d-flex justify-content-between w-100">
+                        <div>
+                          <strong>{transaction.transactionName}</strong>
+                        </div>
+                        <span
+                          className={`badge fs-6 px-3 py-2 ${
+                            isReserved ? "bg-secondary" : "bg-success"
+                          }`}
+                        >
+                          {isReserved ? "Reserved" : "Available"}
+                        </span>
+                      </div>
+
+                      {expandedTransaction === transaction.transactionName && (
+                        <div className="mt-3 ps-4">
+                          <p>
+                            <strong>Buyer ID: </strong> {transaction.buyerId}
+                          </p>
+                          <p>
+                            <strong>Start Date & Time: </strong>
+                            {handleDateFormat(timeslotDetails.startDateTime)}
+                          </p>
+                          <p>
+                            <strong>End Date & Time: </strong>
+                            {handleDateFormat(timeslotDetails.endDateTime)}
+                          </p>
+                          <p>
+                            <strong>Location: </strong>
+                            {transaction.transactionLocation}
+                          </p>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="mt-3">No transactions available.</p>
+            )}
           </div>
         </div>
       </>
