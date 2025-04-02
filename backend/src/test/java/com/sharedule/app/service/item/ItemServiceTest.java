@@ -54,6 +54,14 @@ public class ItemServiceTest {
         createItemDTO.setItemAvailable(true);
         createItemDTO.setItemImage("https://sharedule.s3.us-east-1.amazonaws.com/1742734103919_johncena.jpg");
 
+        editItemDTO = new EditItemDTO();
+        editItemDTO.setItemName("Item Name Change");
+        editItemDTO.setItemDescription("Item Description Change");
+        editItemDTO.setItemPrice(2111.0);
+        editItemDTO.setItemStock(5L);
+        editItemDTO.setItemAvailable(false);
+        editItemDTO.setItemImage("https://sharedule.s3.us-east-1.amazonaws.com/changed_johncena.jpg");
+
         appUser = new AppUsers();
         appUser.setUsername("testUser");
         appUser.setEmail("test@hotmail.com.com");
@@ -62,8 +70,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void createItem_Success() {
-
+    void testCreateItem_Success() {
         Item savedItem = new Item();
         savedItem.setItemName(createItemDTO.getItemName());
         savedItem.setItemDescription(createItemDTO.getItemDescription());
@@ -73,25 +80,46 @@ public class ItemServiceTest {
         savedItem.setItemImage(createItemDTO.getItemImage());
         savedItem.setUser(appUser);
 
-        when(itemRepo.save(any(Item.class))).thenReturn(savedItem);
+        when(itemRepo.save(savedItem)).thenReturn(savedItem);
 
         Item result = itemService.createItem(createItemDTO, appUser);
 
-        assertNotNull(result);
-        assertEquals(createItemDTO.getItemName(), result.getItemName());
-        assertEquals(createItemDTO.getItemDescription(), result.getItemDescription());
-        assertEquals(createItemDTO.getItemPrice(), result.getItemPrice());
-        assertEquals(createItemDTO.getItemStock(), result.getItemStock());
-        assertEquals(createItemDTO.isItemAvailable(), result.isItemAvailable());
-        assertEquals(createItemDTO.getItemImage(), result.getItemImage());
-        assertEquals(appUser, result.getUser());
+        verify(itemRepo).save(savedItem);
 
-        verify(itemRepo, times(1)).save(any(Item.class));
+        assertEquals(savedItem.getItemName(), result.getItemName());
+        assertEquals(savedItem.getItemDescription(), result.getItemDescription());
+        assertEquals(savedItem.getItemPrice(), result.getItemPrice());
+        assertEquals(savedItem.getItemStock(), result.getItemStock());
+        assertEquals(savedItem.isItemAvailable(), result.isItemAvailable());
+        assertEquals(savedItem.getItemImage(), result.getItemImage());
+        assertEquals(savedItem.getUser(), result.getUser());
     }
 
     @Test
-    void createItem_Success() {
+    void testUpdateItem_Success() {
+        // Act
+        Item existingItem = new Item();
+        existingItem.setItemName(editItemDTO.getItemName());
+        existingItem.setItemDescription(editItemDTO.getItemDescription());
+        existingItem.setItemPrice(editItemDTO.getItemPrice());
+        existingItem.setItemStock(editItemDTO.getItemStock());
+        existingItem.setItemAvailable(editItemDTO.getItemAvailable());
+        existingItem.setItemImage(editItemDTO.getItemImage());
+        when(itemRepo.save(existingItem)).thenReturn(existingItem);
+        Item updatedItem = itemService.updateItem(existingItem, editItemDTO);
 
+        assertEquals(editItemDTO.getItemName(), updatedItem.getItemName());
+        assertEquals(editItemDTO.getItemDescription(), updatedItem.getItemDescription());
+        assertEquals(editItemDTO.getItemPrice(), updatedItem.getItemPrice());
+        assertEquals(editItemDTO.getItemStock(), updatedItem.getItemStock());
+        assertEquals(editItemDTO.getItemAvailable(), updatedItem.isItemAvailable());
+        assertEquals(editItemDTO.getItemImage(), updatedItem.getItemImage());
+
+        verify(itemRepo).save(existingItem);
     }
+
+
+    
+
 
 }
