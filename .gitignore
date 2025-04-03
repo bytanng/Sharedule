@@ -60,3 +60,5 @@ yarn-error.log*
 .env
 backend/src/main/resources/application.properties
 /frontend/node_modules
+backend/src/test/java/com/sharedule/app/ShareduleApplicationTests.java
+backend/src/main/java/com/sharedule/app/ShareduleApplication.java
