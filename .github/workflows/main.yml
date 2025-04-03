@@ -3,10 +3,10 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - containerization
+      - DevSecOps
   pull_request:
     branches:
-      - containerization
+      - DevSecOps
 
 jobs:
   build-and-test:
