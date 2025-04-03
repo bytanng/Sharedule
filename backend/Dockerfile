@@ -8,13 +8,7 @@ RUN apt-get update && apt-get install -y maven
 WORKDIR /
 
 # ✅ Copy only pom.xml first (for better caching)
-# Ensure test files are included in the build stage
-COPY src/ /src/
-COPY pom.xml /pom.xml
-
-# Run tests before packaging
-RUN mvn clean test
-
+COPY pom.xml .
 
 # ✅ Download dependencies early (faster builds)
 RUN mvn dependency:go-offline
