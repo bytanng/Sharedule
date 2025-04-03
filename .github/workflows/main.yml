@@ -109,8 +109,7 @@ jobs:
 
       - name: Run Backend Unit Tests
         run: |
-          docker exec my-backend-container mvn clean test-compile
-          docker exec my-backend-container mvn test
+          docker exec my-backend-container mvn -Dtest=**/backend/src/test/java/** test
 
       - name: Shut Down Docker Compose
         run: |
