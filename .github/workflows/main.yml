@@ -109,7 +109,8 @@ jobs:
           
       - name: Run Single unit test
         run: |
-          docker exec my-backend-container ls -R target/test-classes/com/***/app/service/item/
+          docker exec my-backend-container ls -R backend/src/test/java/com/***/app/service/item/
+
 
 
 
