@@ -109,7 +109,8 @@ jobs:
           
       - name: Run Single unit test
         run: |
-          docker exec my-backend-container mvn test -Dtest=com.***.app.service.item.ItemServiceTest
+          docker exec my-backend-container ls -R target/test-classes/com/***/app/service/item/
+
 
 
       - name: Run Backend Unit Tests
