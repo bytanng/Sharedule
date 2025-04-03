@@ -94,6 +94,7 @@ jobs:
         run: |
           docker exec my-backend-container apt-get update
           docker exec my-backend-container apt-get install -y 
+          
       - name: Wait for MongoDB to Start
         run: sleep 10
 
@@ -107,8 +108,8 @@ jobs:
             find ./backend/src/test/java -name '*Test.java'
           fi
 
-        - name: Run Single unit test
-          run: |
+      - name: Run Single unit test
+        run: |
             docker exec my-backend-container ls -R /backend/
             docker exec my-backend-container cd /backend
             docker exec my-backend-container ls -R src/test/java
