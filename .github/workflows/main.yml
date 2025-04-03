@@ -98,30 +98,6 @@ jobs:
       - name: Wait for MongoDB to Start
         run: sleep 10
 
-      # - name: Verify Test Files Exist
-      #   run: |
-      #     if [ -z "$(find ./backend/src/test/java -name '*Test.java')" ]; then
-      #       echo "❌ No test files found!"
-      #       exit 1
-      #     else
-      #       echo "✅ Test files detected:"
-      #       find ./backend/src/test/java -name '*Test.java'
-      #     fi
-
-      - name: Run Single unit test
-        run: |
-            docker exec my-backend-container ls -R /src
-
-
-
-    
-      # - name: Run Single unit test
-      #   run: |
-      #     docker exec my-backend-container ls -R backend/src/test/java/com/***/app/service/item/
-
-
-
-
       - name: Run Backend Unit Tests
         run: |
           docker exec my-backend-container mvn test
