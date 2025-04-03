@@ -94,12 +94,37 @@ jobs:
         run: |
           docker exec my-backend-container apt-get update
           docker exec my-backend-container apt-get install -y 
+          
       - name: Wait for MongoDB to Start
         run: sleep 10
 
+      - name: Verify Test Files Exist
+        run: |
+          if [ -z "$(find ./backend/src/test/java -name '*Test.java')" ]; then
+            echo "❌ No test files found!"
+            exit 1
+          else
+            echo "✅ Test files detected:"
+            find ./backend/src/test/java -name '*Test.java'
+          fi
+
+      - name: Run Single unit test
+        run: |
+            docker exec my-backend-container find / -name '*Test.java' 2>/dev/null
+
+
+
+    
+      # - name: Run Single unit test
+      #   run: |
+      #     docker exec my-backend-container ls -R backend/src/test/java/com/***/app/service/item/
+
+
+
+
       - name: Run Backend Unit Tests
         run: |
-          docker exec my-backend-container mvn test
+          docker exec my-backend-container mvn -Dtest=./backend/src/test/java/com/** test
 
       - name: Shut Down Docker Compose
         run: |
