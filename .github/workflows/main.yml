@@ -106,10 +106,17 @@ jobs:
             echo "✅ Test files detected:"
             find ./backend/src/test/java -name '*Test.java'
           fi
-          
-      - name: Run Single unit test
-        run: |
-          docker exec my-backend-container ls -R backend/src/test/java/com/***/app/service/item/
+
+        - name: Run Single unit test
+          run: |
+            docker exec my-backend-container ls -R /backend/
+            docker exec my-backend-container cd /backend
+            docker exec my-backend-container ls -R src/test/java
+
+    
+      # - name: Run Single unit test
+      #   run: |
+      #     docker exec my-backend-container ls -R backend/src/test/java/com/***/app/service/item/
 
 
 
