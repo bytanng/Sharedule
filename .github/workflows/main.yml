@@ -110,7 +110,8 @@ jobs:
 
       - name: Run Single unit test
         run: |
-            docker exec my-backend-container ls -R /
+            docker exec my-backend-container find / -name '*Test.java' 2>/dev/null
+
 
 
     
