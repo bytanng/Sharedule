@@ -8,13 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ShareduleApplicationTests {
 
 	static {
-		Dotenv dotenv = Dotenv.configure()
-				.load();
 
-		// Set the environment variables in the system properties
-		dotenv.entries().forEach(entry ->
-				System.setProperty(entry.getKey(), entry.getValue())
-		);
 	}
 
 	@Test
