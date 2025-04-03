@@ -28,14 +28,21 @@ WORKDIR /
 # Copy built JAR from the build stage
 COPY --from=build /target/sharedule-0.0.1-SNAPSHOT.jar /target/ShareduleApplication.jar
 
-# Copy `pom.xml` for testing
+# ✅ Copy the entire source code (including tests) into the final container
+COPY --from=build /src /src
+
+# ✅ Copy `pom.xml` for testing
 COPY --from=build /pom.xml /pom.xml
 
 # Install Maven in the final container (if you want to run tests inside)
 RUN apt-get update && apt-get install -y maven
+
+# ✅ Compile tests to ensure they are available
+RUN mvn test-compile
 
 # Expose the port for Spring Boot
 EXPOSE 8080
 
 # Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "/target/ShareduleApplication.jar"]
+
