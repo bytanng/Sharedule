@@ -118,5 +118,8 @@ jobs:
         with:
           type: "credscan,java,depscan"
 
-      - name: View Scan Report
-        run: cat reports/dependency-scan-report.json
+      - name: List all scan report files
+        run: ls -R reports
+
+      - name: Print baseline scan report
+        run: cat reports/.sastscan.baseline
