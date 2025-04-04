@@ -126,6 +126,10 @@ jobs:
           ls -la reports
           cat reports/.sastscan.baseline
 
+      - name: View Dependency Scan Report (JSON)
+        run: |
+          echo "Dependency Scan Findings:"
+          cat reports/depscan-report-universal.json
 
       - name: List all scan report files
         run: ls -R reports
