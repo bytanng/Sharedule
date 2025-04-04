@@ -9,7 +9,7 @@ on:
       - DevSecOps
 
 jobs:
-  build-and-test:
+  docker-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -106,3 +106,14 @@ jobs:
       - name: Shut Down Docker Compose
         run: |
           docker-compose -f docker-compose.yml down
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Perform ShiftLeft Security Scan
+        uses: ShiftLeftSecurity/scan-action@master
+        with:
+          type: "credscan,java,depscan"
