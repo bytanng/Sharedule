@@ -117,7 +117,15 @@ jobs:
         uses: ShiftLeftSecurity/scan-action@master
         with:
           type: "credscan,java,depscan"
-          output: reports/scan.sarif
+        env:
+          SCAN_OUTPUT: reports
+          SCAN_CREATE_BASELINE: true
+
+      - name: View Baseline File
+        run: |
+          ls -la reports
+          cat reports/.sastscan.baseline
+
 
       - name: List all scan report files
         run: ls -R reports
