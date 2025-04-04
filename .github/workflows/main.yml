@@ -117,3 +117,6 @@ jobs:
         uses: ShiftLeftSecurity/scan-action@master
         with:
           type: "credscan,java,depscan"
+
+      - name: View Scan Report
+        run: cat reports/dependency-scan-report.json
