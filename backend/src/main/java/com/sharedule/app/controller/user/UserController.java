@@ -192,7 +192,7 @@ public class UserController {
             String resetUrl = "http://localhost:3000/resetpassword/" + resetToken;
             String subject = "Sharedule Account Password Reset Request";
             String body = "Click the following link to reset your password: " + resetUrl;
-            emailService.sendPasswordResetEmail(resetRequest.getEmail(), subject, body);
+            emailService.sendEmail(resetRequest.getEmail(), subject, body);
 
             return ResponseEntity.ok("Password reset link has been sent to your email address.");
         } catch (Exception e) {
