@@ -5,7 +5,9 @@ import com.sharedule.app.model.user.Users;
 import com.sharedule.app.repository.user.UserRepo;
 import com.sharedule.app.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SellerNotifier implements AppointmentObserver {
 
     @Autowired

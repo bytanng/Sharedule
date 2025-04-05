@@ -1,5 +1,6 @@
 package com.sharedule.app.service.timeslot;
 
+import com.sharedule.app.observer.AppointmentObserverManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,9 @@ public class TimeslotService {
     @Autowired
     private TimeslotRepo repo;
 
+    @Autowired
+    private AppointmentObserverManager appointmentObserver;
+
     public Timeslot createTimeslot(CreateTimeslotDTO timeslotDTO, Transaction transaction) {
 
         Timeslot timeslot = new Timeslot();
@@ -20,7 +24,9 @@ public class TimeslotService {
         timeslot.setEndDateTime(timeslotDTO.getEndDateTime());
         timeslot.setTransaction(transaction);
 
-        return repo.save(timeslot);
+        Timeslot saved = repo.save(timeslot);
+        appointmentObserver.notifyAll(saved);
+        return saved;
     }
 
     public Timeslot getTimeslotByTransactionId(String transactionId) {
