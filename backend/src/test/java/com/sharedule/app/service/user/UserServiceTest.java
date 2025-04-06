@@ -84,14 +84,11 @@ class UserServiceTest {
 
     @Test
     void testResetPassword_Success() {
-        // Setup mock behaviors
         when(userRepo.findByEmail("john.doe@hotmail.com")).thenReturn(appUser);
         when(jwtService.generateToken(anyString())).thenReturn("validToken");
 
-        // Call the method under test
         String result = userService.resetPassword(passwordResetDTO, "john.doe@hotmail.com");
 
-        // Assert the expected outcome
         assertEquals("Password successfully reset", result);
     }
 
@@ -107,16 +104,12 @@ class UserServiceTest {
 
     @Test
     void testUpdateProfile_Success() {
-        // Ensure appUser is set up correctly
         when(userRepo.findByUsername("testUser")).thenReturn(appUser);
 
-        // Execute the service method
         String result = userService.updateProfile("testUser", profileUpdateDTO);
 
-        // Check that the result contains the expected success message
         assertTrue(result.contains("Profile successfully updated"));
 
-        // Verify that save was called once on the repository
         verify(userRepo, times(1)).save(any(Users.class));
     }
 
