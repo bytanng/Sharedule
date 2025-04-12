@@ -28,7 +28,10 @@ public class Transaction {
     private String transactionLocation;
 
     @DBRef
-    private Users user; // Reference to the user who created the transaction
+    private Users seller; // Reference to the user who created the transaction
+
+    @DBRef
+    private Users buyer;
 
     @DBRef
     private Item item; // Reference to the item being transacted

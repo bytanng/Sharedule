@@ -78,7 +78,7 @@ const CreateTransaction = () => {
       return; // Stop execution if transaction creation fails
     }
 
-    toast.success("Transaction created successfully!");
+    toast.success("Availability created successfully!");
     navigate(`/item/${id}`); // Redirect to items page
 
     // Create timeslot after successful transaction
@@ -97,14 +97,14 @@ const CreateTransaction = () => {
       return; // Stop execution if timeslot creation fails
     }
 
-    toast.success("Timeslot created successfully!");
+    // toast.success("Timeslot created successfully!");
   };
 
   return (
     <>
       <Navbar />
       <div className="container my-5">
-        <h2 className="text-center mb-4">Create New Transaction</h2>
+        <h2 className="text-center mb-4">Create New Availability</h2>
         <div className="row justify-content-center">
           <div className="col-md-8">
             <form onSubmit={handleSubmit}>
@@ -169,7 +169,7 @@ const CreateTransaction = () => {
               </div>
               <div className="mb-3">
                 <label htmlFor="transactionLocation" className="form-label">
-                  Location
+                  Location and Others
                 </label>
                 <input
                   type="text"

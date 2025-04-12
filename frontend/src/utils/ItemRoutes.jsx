@@ -66,18 +66,32 @@ export const getUserItems = async () => {
 };
 
 export const getItem = async (id) => {
-  const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      console.error("No authentication token found");
+      return null;
+    }
 
-  const response = await fetch(`${API_URL}/item/${id}`, {
-    method: GET_METHOD,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
+    const response = await fetch(`${API_URL}/item/${id}`, {
+      method: GET_METHOD,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
 
-  return await response.json();
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${await response.text()}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch item:", error.message);
+    return null;
+  }
 };
 
 export const searchItems = async (query) => {
