@@ -133,7 +133,6 @@ public class ItemService {
             repo.delete(itemToBeDeleted);
             return "Item successfully deleted";
         } catch (Exception e) {
-            e.printStackTrace();
             return "Failed to delete item: " + e.getMessage();
         }
     }
