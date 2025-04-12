@@ -9,6 +9,8 @@ import com.sharedule.app.model.timeslot.Timeslot;
 import com.sharedule.app.model.transaction.Transaction;
 import com.sharedule.app.repository.timeslot.TimeslotRepo;
 
+import java.util.List;
+
 @Service
 public class TimeslotService {
     @Autowired
@@ -18,6 +20,19 @@ public class TimeslotService {
     private AppointmentObserverManager appointmentObserver;
 
     public Timeslot createTimeslot(CreateTimeslotDTO timeslotDTO, Transaction transaction) {
+
+        String buyerId = transaction.getBuyerId();
+        String sellerId = transaction.getUser().getId();
+        List<Timeslot> conflicts = repo.findConflictingTimeslots(
+                buyerId,
+                sellerId,
+                timeslotDTO.getStartDateTime(),
+                timeslotDTO.getEndDateTime(),
+                null
+        );
+        if (!conflicts.isEmpty()) {
+            throw new RuntimeException("Timeslot conflicts with an existing schedule");
+        }
 
         Timeslot timeslot = new Timeslot();
         timeslot.setStartDateTime(timeslotDTO.getStartDateTime());
