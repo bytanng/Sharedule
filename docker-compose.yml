@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: my-backend-container
+    ports:
+      - "8080:8080"
+    environment:
+      TESTING_URL: ${TESTING_URL}
+      DEV_URL: ${DEV_URL}
+      PROD_URL: ${PROD_URL}
+      LOCAL_URL: ${LOCAL_URL}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_URL: ${AWS_S3_URL}
+    networks:
+      - my-network
+    env_file:
+      - .env  # Ensure this references your .env file
+    depends_on:
+      - mongodb
+
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: my-frontend-container
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - my-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: my-mongo-container
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+    networks:
+      - my-network
+    volumes:
+      - mongo-data:/data/db  # Persist MongoDB data
+
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

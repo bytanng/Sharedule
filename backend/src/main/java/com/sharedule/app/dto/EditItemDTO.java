@@ -4,6 +4,8 @@ import lombok.*;
 import jakarta.validation.constraints.Pattern;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class EditItemDTO {
