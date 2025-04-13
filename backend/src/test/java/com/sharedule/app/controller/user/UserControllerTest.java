@@ -9,6 +9,7 @@ import com.sharedule.app.exception.BackendErrorException;
 import com.sharedule.app.model.user.AppUsers;
 import com.sharedule.app.model.user.Users;
 import com.sharedule.app.repository.user.UserRepo;
+import com.sharedule.app.service.transaction.TransactionService;
 import com.sharedule.app.service.user.UserService;
 import com.sharedule.app.service.email.EmailService;
 import com.sharedule.app.service.user.JWTService;
@@ -68,6 +69,9 @@ public class UserControllerTest {
 
     @MockBean
     private SecurityFilterChain securityFilterChain;
+
+    @MockBean
+    private TransactionService transactionService;
 
     private UserRegistrationDTO registrationDTO;
 
