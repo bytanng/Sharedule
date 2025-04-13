@@ -24,6 +24,7 @@ import {
   Item,
   Product,
   CreateTransaction,
+  MyAppointments,
 } from "./pages";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
@@ -69,6 +70,14 @@ root.render(
             element={
               <ProtectedRoute>
                 <ViewListings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-appointments"
+            element={
+              <ProtectedRoute>
+                <MyAppointments />
               </ProtectedRoute>
             }
           />

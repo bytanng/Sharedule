@@ -143,6 +143,11 @@ const Navbar = () => {
                     </NavLink>
                   </li>
                   <li>
+                    <NavLink className="dropdown-item" to="/my-appointments">
+                      <i className="fa fa-calendar-check me-2"></i>My Appointments
+                    </NavLink>
+                  </li>
+                  <li>
                     <hr className="dropdown-divider" />
                   </li>
                   <li>

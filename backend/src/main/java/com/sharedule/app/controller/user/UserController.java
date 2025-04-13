@@ -22,6 +22,10 @@ import org.springframework.http.HttpStatus;
 
 import com.sharedule.app.model.user.AppUsers;
 import com.sharedule.app.dto.UserProfileUpdateDTO;
+import com.sharedule.app.service.transaction.TransactionService;
+import com.sharedule.app.model.transaction.Transaction;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 public class UserController {
@@ -34,6 +38,9 @@ public class UserController {
 
     @Autowired
     private JWTService jwtService;
+
+    @Autowired
+    private TransactionService transactionService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegistrationDTO userRegistrationDTO) {
@@ -228,6 +235,42 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred while processing your request");
+        }
+    }
+
+    @GetMapping("/user/appointments")
+    public ResponseEntity<?> getUserAppointments(@RequestHeader("Authorization") String token) {
+        try {
+            // Validate token format
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
+            }
+            
+            // Extract and validate token
+            String jwtToken = token.substring(7);
+            if (jwtService.isTokenExpired(jwtToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+            }
+
+            // Get user from token
+            Users user = userService.getUser(token);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            // Get both buying and selling transactions
+            List<Transaction> buyingTransactions = transactionService.getBuyingTransactions(user);
+            List<Transaction> sellingTransactions = transactionService.getSellingTransactions(user);
+
+            // Create a response object with both lists
+            Map<String, Object> response = new HashMap<>();
+            response.put("buying", buyingTransactions);
+            response.put("selling", sellingTransactions);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred while retrieving appointments: " + e.getMessage());
         }
     }
 
