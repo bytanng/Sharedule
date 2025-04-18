@@ -22,7 +22,7 @@ public class TimeslotService {
     public Timeslot createTimeslot(CreateTimeslotDTO timeslotDTO, Transaction transaction) {
 
         String buyerId = transaction.getBuyerId();
-        String sellerId = transaction.getUser().getId();
+        String sellerId = transaction.getSeller().getId();
         List<Timeslot> conflicts = repo.findConflictingTimeslots(
                 buyerId,
                 sellerId,

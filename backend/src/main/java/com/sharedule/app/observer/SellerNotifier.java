@@ -18,7 +18,7 @@ public class SellerNotifier implements AppointmentObserver {
 
     @Override
     public void notify(Timeslot timeslot) {
-        Users seller = timeslot.getTransaction().getUser();
+        Users seller = timeslot.getTransaction().getSeller();
 
         if (seller != null) {
             emailService.sendEmail(

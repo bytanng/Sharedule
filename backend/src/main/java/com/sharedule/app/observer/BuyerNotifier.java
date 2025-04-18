@@ -18,8 +18,7 @@ public class BuyerNotifier implements AppointmentObserver {
 
     @Override
     public void notify(Timeslot timeslot) {
-        String buyerId = timeslot.getTransaction().getBuyerId();
-        Users buyer = userRepo.findById(buyerId).orElse(null);
+        Users buyer = timeslot.getTransaction().getBuyer();
 
         if (buyer != null) {
             emailService.sendEmail(
