@@ -7,6 +7,7 @@ import DeleteModal from "../components/DeleteModal";
 import { getUserTransactions } from "../utils/TransactionRoutes";
 import { getTimeslotByTransaction } from "../utils/TimeslotRoutes";
 import dayjs from "dayjs";
+import { API_URL } from "../utils/Constants";
 
 const Item = () => {
   const navigate = useNavigate();
@@ -24,11 +25,15 @@ const Item = () => {
 
       try {
         const data = await getItem(id);
-        const transactions = await getUserTransactions();
-
         setItem(data);
-        setTransactions(transactions);
+        
+        // Only try to get transactions after we successfully have the item
+        if (data) {
+          const transactions = await getUserTransactions(id);
+          setTransactions(transactions || []);
+        }
       } catch (error) {
+        console.error("Error fetching item data:", error);
         setItem(null);
         setTransactions([]);
       }
@@ -78,35 +83,33 @@ const Item = () => {
     setTimeslotDetails(timeslot);
   };
 
-  const Loading =
-    (() => {
-      return (
-        <>
-          <div className="col-12 py-5 text-center">
-            <Skeleton height={40} width={560} />
-          </div>
-          <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-            <Skeleton height={592} />
-          </div>
-          <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-            <Skeleton height={592} />
-          </div>
-          <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-            <Skeleton height={592} />
-          </div>
-          <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-            <Skeleton height={592} />
-          </div>
-          <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-            <Skeleton height={592} />
-          </div>
-          <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-            <Skeleton height={592} />
-          </div>
-        </>
-      );
-    },
-    []);
+  const Loading = () => {
+    return (
+      <>
+        <div className="col-12 py-5 text-center">
+          <Skeleton height={40} width={560} />
+        </div>
+        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+          <Skeleton height={592} />
+        </div>
+        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+          <Skeleton height={592} />
+        </div>
+        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+          <Skeleton height={592} />
+        </div>
+        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+          <Skeleton height={592} />
+        </div>
+        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+          <Skeleton height={592} />
+        </div>
+        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+          <Skeleton height={592} />
+        </div>
+      </>
+    );
+  };
 
   const DisplayItem = ({ item }) => {
     return (
@@ -148,7 +151,7 @@ const Item = () => {
                 className="btn btn-primary"
                 onClick={routeToCreateTransaction}
               >
-                Create Transaction
+                Create Availability
               </button>
             </div>
             {transactions.length > 0 ? (
@@ -188,7 +191,7 @@ const Item = () => {
                       {expandedTransaction === transaction.transactionName && (
                         <div className="mt-3 ps-4">
                           <p>
-                            <strong>Buyer ID: </strong> {transaction.buyerId}
+                            <strong>Buyer ID: </strong> <span>{transaction.buyerId || 'No Buyer Scheduled'}</span>
                           </p>
                           <p>
                             <strong>Start Date & Time: </strong>
@@ -199,7 +202,7 @@ const Item = () => {
                             {handleDateFormat(timeslotDetails.endDateTime)}
                           </p>
                           <p>
-                            <strong>Location: </strong>
+                            <strong>Location and Others: </strong>
                             {transaction.transactionLocation}
                           </p>
                         </div>
