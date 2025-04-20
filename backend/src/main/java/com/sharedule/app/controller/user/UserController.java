@@ -63,9 +63,9 @@ public class UserController {
     }
 
     @GetMapping("/user/profile")
-    public AppUsers getUser(
+    public Users getUser(
             @RequestHeader("Authorization") String token) {
-        return (AppUsers) userService.getUser(token);
+        return userService.getUser(token);
     }
 
     @PostMapping("/logout")

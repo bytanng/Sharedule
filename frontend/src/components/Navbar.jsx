@@ -1,27 +1,69 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { getUser } from "../utils/UserRoutes";
 
 const Navbar = () => {
   const state = useSelector((state) => state.handleCart);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("User");
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
+
+    const fetchUserData = async (token) => {
+      try {
+        // 1. Await the result of getUser(token)
+        const userData = await getUser(token);
+        setUserData(userData);
+        console.log(userData);
+        if(userData.role=="SUPERADMIN"||userData.role == "ADMIN"){
+          setIsAdmin(true);
+        }
+      } catch (error) {
+        console.error("Error during login check or user fetch:", error);
+      }
+    };
+    
     //check if user is logged in
     const checkLoginStatus = () => {
-      const token = localStorage.getItem("token");
-      setIsLoggedIn(!!token);
+      return new Promise((resolve) => {
+        const token = localStorage.getItem("token");
+        setIsLoggedIn(!!token);
+        resolve(!!token);
+      });
     };
+    
+    
+
+    const initialize = async () => { // Encapsulate the logic in an async function
+      const isLoggedIn = await checkLoginStatus();
+      if (isLoggedIn) {
+        const token = localStorage.getItem("token"); // Get token *after* confirming login
+        await fetchUserData(token);
+      }
+    };
+    initialize();
+
+  
 
     //get username from localstorage
     if (localStorage.getItem("username")) {
       setUsername(localStorage.getItem("username"));
     }
 
-    //check on component mount
-    checkLoginStatus();
+
+    
+
+    //get username from localstorage
+    if (localStorage.getItem("role") && (localStorage.getItem("role")=="ADMIN" || localStorage.getItem("role")=="SUPERADMIN")) {
+      setIsAdmin(true);
+    }
+
+
+    // fetchUserData(localStorage.getItem("token"));
 
     //event listener to check when localStorage changes
     window.addEventListener("storage", checkLoginStatus);
@@ -111,6 +153,15 @@ const Navbar = () => {
                 Contact
               </NavLink>
             </li>
+            {isLoggedIn && isAdmin && (
+              <>
+                <li className="nav-item">
+                  <NavLink className="nav-link font-weight-bold" to="/admin">
+                    Admin
+                  </NavLink>
+                </li>
+              </>
+            )}
           </ul>
           <div className="buttons text-center">
             {/* <NavLink to="/login" className="btn btn-outline-dark m-2"><i className="fa fa-sign-in-alt mr-1"></i> Login</NavLink>
