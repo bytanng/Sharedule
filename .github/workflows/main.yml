@@ -3,10 +3,10 @@ name: DevSecOps Build & Test Pipeline
 on:
   push:
     branches:
-      - dev
+      - DevSecOps
   pull_request:
     branches:
-      - dev
+      - DevSecOps
 
 jobs:
   docker-build-and-test:
