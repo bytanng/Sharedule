@@ -173,7 +173,7 @@ jobs:
 
       - name: Run and test Docker image
         run: |
-          docker run -d -p 8080:8080 --name frontend-test $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
+          docker run -d -p 8080:80 --name frontend-test $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
           sleep 10
           curl --fail http://localhost:8080 || (docker logs frontend-test && exit 1)
-        continue-on-error: false
+
