@@ -145,6 +145,11 @@ jobs:
       FRONTEND_REPO: ${{ secrets.FRONTEND_REPO }}
 
     steps:
+      - name: Install AWS EB CLI
+        run: |
+          pip install --upgrade pip
+          pip install awsebcli
+    
       - name: Checkout code
         uses: actions/checkout@v4
 
