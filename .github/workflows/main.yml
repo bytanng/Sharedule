@@ -228,7 +228,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       EB_APP_NAME: sharedule-frontend # Replace with your actual EB application name
-      EB_ENV_NAME: ShareduleFrontend-env # Replace with your actual EB environment name
+      EB_ENV_NAME: SharduleFrontend-env # Replace with your actual EB environment name
       EB_PLATFORM: "Docker" # Define the platform
   
     steps:
@@ -273,9 +273,14 @@ jobs:
             --application "${{ env.EB_APP_NAME }}"
         working-directory: ./
   
-      - name: Deploy to Elastic Beanstalk
-        if: steps.check_env.outputs.ENVIRONMENT_EXISTS == 'true'
+      - name: Initialize EB CLI (before deploy)
         run: |
-          echo "Deploying to existing Elastic Beanstalk environment '${{ env.EB_ENV_NAME }}'..."
+          echo "Initializing EB CLI..."
+          eb init -p "${{ env.EB_PLATFORM }}" --region "${{ env.AWS_REGION }}" "${{ env.EB_APP_NAME }}" --no-interactive
+        working-directory: ./
+  
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          echo "Deploying to Elastic Beanstalk environment '${{ env.EB_ENV_NAME }}'..."
           eb deploy "${{ env.EB_ENV_NAME }}" --region "${{ env.AWS_REGION }}"
         working-directory: ./
