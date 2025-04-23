@@ -245,6 +245,12 @@ jobs:
           pip install --upgrade pip
           pip install awsebcli
   
+      - name: Initialize EB CLI
+        run: |
+          eb init -p Docker --region "${{ env.AWS_REGION }}" "${{ env.EB_APP_NAME }}"
+        working-directory: ./
+  
       - name: Deploy to Elastic Beanstalk
         run: |
           eb deploy ${{ env.EB_ENV_NAME }} --region ${{ env.AWS_REGION }}
+        working-directory: ./
