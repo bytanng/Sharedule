@@ -260,7 +260,6 @@ jobs:
             ],
             "Logging": "/var/log/nginx"
           }' > Dockerrun.aws.json
-        if: "! -f Dockerrun.aws.json" # Only create if it doesn't exist in the repo
 
       - name: Deploy to Elastic Beanstalk
         run: |
