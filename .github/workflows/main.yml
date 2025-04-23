@@ -228,7 +228,9 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       EB_APP_NAME: sharedule-frontend # Replace with your actual EB application name
-      EB_ENV_NAME: SharduleFrontend-env # Replace with your actual EB environment name
+      EB_ENV_NAME: ShareduleFrontend-env # Replace with your actual EB environment name
+      EB_PLATFORM: "Docker" # Define the platform
+  
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -245,12 +247,35 @@ jobs:
           pip install --upgrade pip
           pip install awsebcli
   
-      - name: Initialize EB CLI
+      - name: Check if Elastic Beanstalk environment exists
+        id: check_env
         run: |
-          eb init -p Docker --region "${{ env.AWS_REGION }}" "${{ env.EB_APP_NAME }}"
+          env_status=$(aws elasticbeanstalk describe-environments \
+            --application-name "${{ env.EB_APP_NAME }}" \
+            --environment-names "${{ env.EB_ENV_NAME }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query 'Environments[0].Status' --output text)
+          if [ -z "$env_status" ]; then
+            echo "Environment does not exist."
+            echo "ENVIRONMENT_EXISTS=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Environment status: $env_status"
+            echo "ENVIRONMENT_EXISTS=true" >> "$GITHUB_OUTPUT"
+          fi
+  
+      - name: Create Elastic Beanstalk environment (if it doesn't exist)
+        if: steps.check_env.outputs.ENVIRONMENT_EXISTS == 'false'
+        run: |
+          echo "Creating Elastic Beanstalk environment '${{ env.EB_ENV_NAME }}'..."
+          eb create "${{ env.EB_ENV_NAME }}" \
+            --platform "${{ env.EB_PLATFORM }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --application "${{ env.EB_APP_NAME }}"
         working-directory: ./
   
       - name: Deploy to Elastic Beanstalk
+        if: steps.check_env.outputs.ENVIRONMENT_EXISTS == 'true'
         run: |
-          eb deploy ${{ env.EB_ENV_NAME }} --region ${{ env.AWS_REGION }}
+          echo "Deploying to existing Elastic Beanstalk environment '${{ env.EB_ENV_NAME }}'..."
+          eb deploy "${{ env.EB_ENV_NAME }}" --region "${{ env.AWS_REGION }}"
         working-directory: ./
