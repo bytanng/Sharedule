@@ -245,7 +245,8 @@ jobs:
       - name: Install AWS EB CLI
         run: |
           pip install --upgrade pip
-          pip install awsebcli
+          pip install --upgrade --user awsebcli
+          echo "PATH=$PATH:$HOME/.local/bin" >> $GITHUB_ENV # Add to PATH
   
       - name: Check if Elastic Beanstalk environment exists
         id: check_env
