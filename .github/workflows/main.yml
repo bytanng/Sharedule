@@ -182,6 +182,7 @@ jobs:
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
 
       - name: Get latest image tag from ECR
+        id: get_latest_tag
         run: |
           IMAGE_TAG=$(aws ecr describe-images \
             --repository-name ${{ env.FRONTEND_REPO }} \
@@ -195,44 +196,72 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           FRONTEND_REPO: ${{ secrets.FRONTEND_REPO }}
 
-      
       - name: Render Dockerrun.aws.json with dynamic tag
         run: |
-              cat <<EOF > Dockerrun.aws.json
+          cat <<EOF > Dockerrun.aws.json
+          {
+            "AWSEBDockerrunVersion": "1",
+            "Image": {
+              "Name": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.FRONTEND_REPO }}:${{ env.IMAGE_TAG }}",
+              "Update": "true"
+            },
+            "Ports": [
               {
-                "AWSEBDockerrunVersion": "1",
-                "Image": {
-                  "Name": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.FRONTEND_REPO }}:${{ env.IMAGE_TAG }}",
-                  "Update": "true"
-                },
-                "Ports": [
-                  {
-                    "ContainerPort": "80"
-                  }
-                ],
-                "Environment": [
-                  {
-                    "Name": "ENV_VAR_NAME",
-                    "Value": "your-value"
-                  }
-                ],
-                "Logging": "/var/log/nginx"
+                "ContainerPort": "80"
               }
-              EOF
-          
-      - name: Initialize EB Environment
+            ],
+            "Environment": [
+              {
+                "Name": "ENV_VAR_NAME",
+                "Value": "your-value"
+              }
+            ],
+            "Logging": "/var/log/nginx"
+          }
+          EOF
+
+  deploy-frontend-to-beanstalk:
+    needs: push-to-ecr
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      EB_APP_NAME: sharedule-frontend # Replace with your actual EB application name
+      EB_ENV_NAME: SharduleFrontend-env # Replace with your actual EB environment name
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install AWS EB CLI
         run: |
-          eb init sharedule-frontend \
-            --platform docker \
-            --region ${{ secrets.AWS_REGION }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          
+          pip install --upgrade pip
+          pip install awsebcli
+
+      - name: Create Dockerrun.aws.json (if not already in repo)
+        run: |
+          echo '{
+            "AWSEBDockerrunVersion": "1",
+            "Image": {
+              "Name": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.FRONTEND_REPO }}:${{ needs.push-to-ecr.outputs.frontend_image_tag }}",
+              "Update": "true"
+            },
+            "Ports": [
+              {
+                "ContainerPort": "80"
+              }
+            ],
+            "Logging": "/var/log/nginx"
+          }' > Dockerrun.aws.json
+        if: "! -f Dockerrun.aws.json" # Only create if it doesn't exist in the repo
+
       - name: Deploy to Elastic Beanstalk
-        run: eb deploy frontend-env
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-
+        run: |
+          eb deploy ${{ env.EB_ENV_NAME }} --app ${{ env.EB_APP_NAME }} --region ${{ env.AWS_REGION }}
