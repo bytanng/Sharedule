@@ -34,9 +34,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .and()  // <<<<<< important: chain properly
             .csrf(csrf -> csrf.disable())
+            .and()  // <<<<<< important: chain properly
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
@@ -47,14 +49,14 @@ public class SecurityConfig {
                 .requestMatchers("/file/**").authenticated()
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-    
-        return http.build();
+            .httpBasic(Customizer.withDefaults())
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
+
 
 
 
