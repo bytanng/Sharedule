@@ -34,22 +34,27 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
+    
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/register", "/login", "/logout", "/user/profile", "/s3", "/user/reset-password",
-                                "/file", "/products", "/products/search", "/product/*","/actuator/health")
-                        .permitAll().requestMatchers("/file/**").authenticated()
-                        .anyRequest().authenticated())
+                        .requestMatchers(
+                            "/register", "/login", "/logout", "/user/profile", "/s3", 
+                            "/user/reset-password", "/file", "/products", 
+                            "/products/search", "/product/*", "/actuator/health"
+                        )
+                        .permitAll()
+                        .requestMatchers("/file/**").authenticated()
+                        .anyRequest().authenticated()
+                )
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-
     }
+
 
     // authentication provider to connect to db
     @Bean
