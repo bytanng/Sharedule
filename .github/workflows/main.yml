@@ -210,12 +210,12 @@ jobs:
         run: |
           TASK_DEFINITION_ARN=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query 'taskDefinition.taskDefinitionArn' --output text)
           NEW_TASK_DEFINITION_ARN=$(aws ecs register-task-definition --family $TASK_DEFINITION_FAMILY --cpu 256 --memory 512 --network-mode awsvpc --requires-compatibilities FARGATE --execution-role-arn your-ecs-task-execution-role-arn --container-definitions "[{\"name\":\"frontend\",\"image\":\"${{ needs.push-to-ecr.outputs.frontend_image }}\",\"portMappings\":[{\"containerPort\":80,\"hostPort\":80,\"protocol\":\"tcp\"}],\"essential\":true}]" --output json | jq -r '.taskDefinition.taskDefinitionArn')
-          echo "NEW_TASK_DEFINITION_ARN=$NEW_TASK_DEFINITION_ARN" >> $GITHUB_ENV
-
+          echo "NEW_TASK_DEFINITION_ARN=$NEW_TASK_DEFINITION_ARN" >> $GITHUB_ENV # Store for use in later steps
+          
       - name: Update ECS Service
         run: |
           aws ecs update-service --cluster $AWS_CLUSTER_NAME --service $FRONTEND_SERVICE_NAME --task-definition $NEW_TASK_DEFINITION_ARN --force-new-deployment
-
+          
       - name: Wait for ECS Service to Stabilize
         run: |
           aws ecs wait service-stable --cluster $AWS_CLUSTER_NAME --service $FRONTEND_SERVICE_NAME
