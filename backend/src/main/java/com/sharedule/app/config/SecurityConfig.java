@@ -41,11 +41,6 @@ public class SecurityConfig {
             .and()  // <<<<<< important: chain properly
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(
-                    "/register", "/login", "/logout", "/user/profile", "/s3",
-                    "/user/reset-password", "/file", "/products",
-                    "/products/search", "/product/*", "/actuator/health"
-                ).permitAll()
                 .requestMatchers("/file/**").authenticated()
                 .anyRequest().authenticated()
             )
