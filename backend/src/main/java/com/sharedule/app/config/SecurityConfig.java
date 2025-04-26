@@ -74,6 +74,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Confirmation"));
         configuration.setAllowCredentials(true);
+        System.out.println("⚡ CORS Config initialized with allowed origins: " + configuration.getAllowedOrigins());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
