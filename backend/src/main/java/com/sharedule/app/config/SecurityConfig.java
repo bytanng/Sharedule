@@ -34,27 +34,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ⚡ You MUST allow OPTIONS
-                        .requestMatchers(
-                            "/register", "/login", "/logout", "/user/profile", "/s3", 
-                            "/user/reset-password", "/file", "/products", 
-                            "/products/search", "/product/*", "/actuator/health"
-                        )
-                        .permitAll()
-                        .requestMatchers("/file/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(
+                    "/register", "/login", "/logout", "/user/profile", "/s3",
+                    "/user/reset-password", "/file", "/products",
+                    "/products/search", "/product/*", "/actuator/health"
+                ).permitAll()
+                .requestMatchers("/file/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    
+        return http.build();
     }
+
 
 
 
