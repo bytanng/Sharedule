@@ -187,9 +187,9 @@ jobs:
     needs: [push-to-ecr]
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_CLUSTER_NAME: your-ecs-cluster-name
-      FRONTEND_SERVICE_NAME: your-frontend-ecs-service-name
-      TASK_DEFINITION_FAMILY: your-frontend-task-definition-family
+      AWS_CLUSTER_NAME: my-first-ecs-cluster
+      FRONTEND_SERVICE_NAME: frontend-service
+      TASK_DEFINITION_FAMILY: frontend-task
 
     steps:
       - name: Install AWS CLI
