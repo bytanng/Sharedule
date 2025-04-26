@@ -1,4 +1,4 @@
-export const API_URL = "http://localhost:8080";
+export const API_URL = ${{ secrets.API_URL }};
 
 export const POST_METHOD = 'POST';
 export const GET_METHOD = 'GET';
