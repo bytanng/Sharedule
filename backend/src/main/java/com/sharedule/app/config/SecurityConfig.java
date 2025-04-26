@@ -34,22 +34,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         return http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .and()  // <<<<<< important: chain properly
-            .csrf(csrf -> csrf.disable())
-            .and()  // <<<<<< important: chain properly
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/file/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .httpBasic(Customizer.withDefaults())
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(customizer -> customizer.disable())
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/register", "/login", "/logout", "/user/profile", "/s3", "/user/reset-password",
+                                "/file", "/products", "/products/search", "/product/*")
+                        .permitAll().requestMatchers("/file/**").authenticated()
+                        .anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+
     }
 
 
