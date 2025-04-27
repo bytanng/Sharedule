@@ -203,5 +203,5 @@ jobs:
   
       - name: Update frontend ECS service
         run: |
-          aws ecs update-service --cluster my-first-ecs-cluster --service frontend-service --force-new-deployment
+          aws ecs update-service --cluster my-first-ecs-cluster --service frontend-task-service-4ke5elbd --force-new-deployment
 
