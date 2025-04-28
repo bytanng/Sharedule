@@ -1,5 +1,10 @@
 package com.sharedule.app.model.user;
 
+
+import lombok.Getter;
+import lombok.Setter;
+
+
 public interface Users {
     String getId();
     String getUsername();
@@ -7,6 +12,6 @@ public interface Users {
     String getRole();
     String getDisplayPicture();
     String getPassword();
-
+    void setId(Long id);
     boolean equals(Object obj);
 }

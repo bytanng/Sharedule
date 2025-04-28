@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "users")
 @Getter
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AppAdmins implements Users {
     @Id
+    @Field("_id")
     private String id;
 
     @Indexed(unique = true)
@@ -45,14 +47,16 @@ public class AppAdmins implements Users {
         this.displayPicture = displayPicture;
     }
 
-    public AppAdmins(String id, String role, String username, String email, String password) {
-        this.id = id;
-        this.role = role;
+
+    public AppAdmins(String username, String email, String password, String role, String displayPicture) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.displayPicture = "";
+        this.role = role;
+        this.displayPicture = displayPicture;
     }
-
-
+    @Override
+    public void setId(Long id){
+        this.id = id != null ? String.valueOf(id) : null;
+    }
 }

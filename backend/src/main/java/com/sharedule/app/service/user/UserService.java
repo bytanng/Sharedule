@@ -37,7 +37,7 @@ public class UserService {
         return repo.findByEmail(email) != null;
     }
 
-    public void register(UserRegistrationDTO userRegistrationDTO) throws BackendErrorException {
+    public String register(UserRegistrationDTO userRegistrationDTO) throws BackendErrorException {
         System.out.println("DEBUG - Attempting to register user: " + userRegistrationDTO.getUsername());
 
         try {
@@ -62,19 +62,24 @@ public class UserService {
         } catch (ExistsInRepoException eire) {
             throw new BackendErrorException(eire);
         }
-
+        System.out.println("this is user dto");
+        System.out.println(userRegistrationDTO.toString());
+        String role = userRegistrationDTO.getRole();
+        String actualRole = (role != null) ? role : "USER";
         // Use UserFactory to create a user
         Users newUsers = UserFactory.createUser(
-                "USER",
+                actualRole,
                 userRegistrationDTO.getUsername(),
                 userRegistrationDTO.getEmail(),
                 encoder.encode(userRegistrationDTO.getPassword()));
 
-        ((AppUsers) newUsers).setId(null);
 
-        repo.save(newUsers);
+        Users savedUser = repo.save(newUsers);  // Capture the returned object
+        System.out.println("DEBUG - Saved user: " + savedUser); // Log the saved object
+        System.out.println("This is going to register a new user" + newUsers.toString());
 
         System.out.println("DEBUG - Successfully registered user: " + newUsers.getUsername());
+        return "User successfully registered";
     }
 
     public String resetPassword(PasswordResetDTO passwordResetDTO, String email) {

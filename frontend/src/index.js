@@ -9,6 +9,7 @@ import CreateListing from "./components/CreateListing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ViewListings from "./components/ViewListings";
 import Products from "./components/Products";
+import Admin from "./pages/Admin";
 
 import {
   Home,
@@ -23,6 +24,8 @@ import {
   Profile,
   Item,
   Product,
+  CreateTransaction,
+  MyAppointments,
 } from "./pages";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
@@ -71,6 +74,22 @@ root.render(
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/my-appointments"
+            element={
+              <ProtectedRoute>
+                <MyAppointments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -80,6 +99,10 @@ root.render(
           <Route path="/user/profile" element={<Profile />} />
           <Route path="/products" element={<Products />} />
           <Route path="/product/:id" element={<Product />} />
+          <Route
+            path="/create-transaction/:id"
+            element={<CreateTransaction />}
+          />
         </Routes>
       </Provider>
     </ScrollToTop>

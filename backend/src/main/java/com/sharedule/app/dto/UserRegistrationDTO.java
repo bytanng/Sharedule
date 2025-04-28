@@ -12,8 +12,20 @@ import lombok.Builder;
 @Builder
 public class UserRegistrationDTO {
     private String role;
+
+    @Override
+    public String toString() {
+        return "UserRegistrationDTO{" +
+                "role='" + role + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
     private String username;
     private String email;
     private String password;
+
 
 }
