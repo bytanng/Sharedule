@@ -32,6 +32,7 @@ jobs:
           echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
           echo "AWS_S3_URL=${{ secrets.AWS_S3_URL }}" >> .env
+          echo "REACT_APP_API_URL=${{ secrets.API_URL }}" >> .env
 
           
       - name: Install Docker
@@ -51,6 +52,11 @@ jobs:
         run: |
           docker --version
           docker-compose --version
+
+      - name: Install AWS Elastic Beanstalk CLI
+        run: |
+          pip install --upgrade --user awsebcli
+          export PATH=$PATH:$HOME/.local/bin
 
       - name: Build Backend Image
         run: |
@@ -140,6 +146,11 @@ jobs:
       FRONTEND_REPO: ${{ secrets.FRONTEND_REPO }}
 
     steps:
+      - name: Install AWS EB CLI
+        run: |
+          pip install --upgrade pip
+          pip install awsebcli
+    
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -170,3 +181,27 @@ jobs:
       - name: Push frontend image
         run: |
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
+
+  
+  deploy-to-ecs:
+    needs: push-to-ecr
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+  
+      - name: Update backend ECS service
+        run: |
+          aws ecs update-service --cluster my-first-ecs-cluster --service backend-service --force-new-deployment
+  
+      - name: Update frontend ECS service
+        run: |
+          aws ecs update-service --cluster my-first-ecs-cluster --service frontend-task-service-4ke5elbd --force-new-deployment
+
