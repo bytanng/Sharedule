@@ -9,6 +9,7 @@ import CreateListing from "./components/CreateListing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ViewListings from "./components/ViewListings";
 import Products from "./components/Products";
+import Admin from "./pages/Admin";
 
 import {
   Home,
@@ -78,6 +79,14 @@ root.render(
             element={
               <ProtectedRoute>
                 <MyAppointments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
               </ProtectedRoute>
             }
           />

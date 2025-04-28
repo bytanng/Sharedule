@@ -122,11 +122,14 @@ export const deleteAccount = async (token, confirmation) => {
   }
 };
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (token) => {
   try {
     const response = await fetch(`${API_URL}/users`, {
       method: GET_METHOD,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json", 
+        Authorization: `Bearer ${token}`,
+      },
     });
     return await response.json();
   } catch (error) {

@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "users")
 @Getter
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AppUsers implements Users {
     @Id
+    @Field("_id")
     private String id;
 
     @Indexed(unique = true)
@@ -40,6 +42,11 @@ public class AppUsers implements Users {
     }
 
     @Override
+    public void setId(Long id){
+        this.id= String.valueOf(id);
+    }
+
+    @Override
 public boolean equals(Object obj) {
     // Check if the objects are the same instance
     if (this == obj) return true;
@@ -60,14 +67,13 @@ public boolean equals(Object obj) {
 }
 
 
-    public AppUsers(String id, String role, String username, String email, String password) {
-        this.id = id;
-        this.role = role;
+
+
+    public AppUsers(String username, String email, String password, String role, String displayPicture) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.displayPicture = "";
+        this.role = role;
+        this.displayPicture = displayPicture;
     }
-
-
 }
