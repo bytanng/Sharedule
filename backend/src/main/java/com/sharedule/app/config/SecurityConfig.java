@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
-
+import org.springframework.http.HttpMethod;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +34,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(customizer -> customizer.disable())
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("register", "login", "logout", "user/profile", "s3", "user/reset-password",
-                                "file", "products", "products/search", "product/*")
-                        .permitAll().requestMatchers("/file/**").authenticated()
-                        .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(request -> request
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // <-- Add this line
+                .requestMatchers(
+                    "/register", "/login", "/logout", "/user/profile", "/s3",
+                    "/user/reset-password", "/file", "/products",
+                    "/products/search", "/product/*"
+                ).permitAll()
+                .requestMatchers("/file/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
+
+
+
+
 
     // authentication provider to connect to db
     @Bean
@@ -67,10 +74,14 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Change this to your frontend URL
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:3000",
+            "http://my-frontend-lb-1100890705.us-east-1.elb.amazonaws.com"
+        )); // Change this to your frontend URL
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Confirmation"));
         configuration.setAllowCredentials(true);
+        System.out.println("⚡ CORS Config initialized with allowed origins: " + configuration.getAllowedOrigins());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

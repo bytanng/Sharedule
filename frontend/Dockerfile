@@ -22,6 +22,8 @@ FROM nginx:alpine
 # Step 8: Copy the build output from the previous stage to Nginx's public directory
 COPY --from=build /app/build /usr/share/nginx/html
 
+RUN ls -la /usr/share/nginx/html
+
 # Step 9: Expose the port Nginx is listening on (default is 80)
 EXPOSE 80
 
