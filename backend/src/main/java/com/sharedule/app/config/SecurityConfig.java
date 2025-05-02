@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/register", "/login", "/logout", "/user/profile", "/s3",
                     "/user/reset-password", "/file", "/products",
-                    "/products/search", "/product/*"
+                    "/products/search", "/product/*","/actuator/health"
                 ).permitAll()
                 .requestMatchers("/file/**").authenticated()
                 .anyRequest().authenticated()
