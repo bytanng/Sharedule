@@ -89,6 +89,8 @@ const Admin = () => {
   };
 
   const handleCreateClick = async (e) => {
+    e.preventDefault();
+
     // Validate form before submission
     if (!validateForm()) {
       return;
