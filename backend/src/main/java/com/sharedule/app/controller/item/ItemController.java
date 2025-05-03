@@ -113,9 +113,7 @@ public class ItemController {
 
             Item itemToBeViewed = itemService.getItem(itemId);
 
-            if (!user.equals(itemToBeViewed.getUser())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to view this item");
-            }
+
 
             return ResponseEntity.status(HttpStatus.OK).body(itemToBeViewed);
         } catch (BackendErrorException bee) {
