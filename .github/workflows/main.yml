@@ -136,10 +136,15 @@ jobs:
       - name: Print baseline scan report
         run: cat reports/.sastscan.baseline
         
-      - name: Print Secrets Scan Findings
+      - name: Search for Secrets in Universal Report
         run: |
-          echo "===== Secrets Scan Report ====="
-          cat reports/secrets-scan-report.json | jq .
+          echo "=== Searching for Secret Audit Findings ==="
+          if [ -f reports/depscan-report-universal.json ]; then
+            grep -iA 5 '"type": "secret"' reports/depscan-report-universal.json || echo "No secrets found in universal report"
+          else
+            echo "Universal report not found."
+          fi
+
           
   push-to-ecr:
     runs-on: ubuntu-latest
