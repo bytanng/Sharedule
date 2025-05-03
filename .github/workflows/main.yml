@@ -135,9 +135,13 @@ jobs:
 
       - name: Print baseline scan report
         run: cat reports/.sastscan.baseline
-
-  push-to-ecr:
-    runs-on: ubuntu-latest
+        
+      - name: Print Secrets Scan Findings
+        run: |
+          echo "===== Secrets Scan Report ====="
+          cat reports/secrets-scan-report.json | jq .
+        push-to-ecr:
+          runs-on: ubuntu-latest
 
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
