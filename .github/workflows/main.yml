@@ -140,8 +140,9 @@ jobs:
         run: |
           echo "===== Secrets Scan Report ====="
           cat reports/secrets-scan-report.json | jq .
-        push-to-ecr:
-          runs-on: ubuntu-latest
+          
+  push-to-ecr:
+    runs-on: ubuntu-latest
 
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
