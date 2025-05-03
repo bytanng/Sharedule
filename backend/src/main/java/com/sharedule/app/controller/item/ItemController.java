@@ -146,12 +146,7 @@ public class ItemController {
 
             List<Item> itemsFound = itemService.searchItems(query);
 
-            for (Item item : itemsFound) {
-                if (!user.equals(item.getUser())) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                            .body("You are not authorized to view this item");
-                }
-            }
+
 
             return ResponseEntity.status(HttpStatus.OK).body(itemsFound);
         } catch (BackendErrorException bee) {
@@ -217,10 +212,7 @@ public class ItemController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Item not found");
             }
 
-            if (!user.equals(itemToBeDeleted.getUser())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("You are not authorized to delete this item");
-            }
+
 
             String result = itemService.deleteItem(itemId);
 
@@ -273,10 +265,7 @@ public class ItemController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item not found");
             }
 
-            // Check if the user is the owner of the item
-            if (!existingItem.getUser().equals(user)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to edit this item");
-            }
+
 
             // Update item details
             Item updatedItemEntity = itemService.updateItem(existingItem, updatedItem);
