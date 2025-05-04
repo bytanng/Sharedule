@@ -144,7 +144,12 @@ jobs:
           else
             echo "Universal report not found."
           fi
-
+          
+      - name: Upload ShiftLeft Scan Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: shiftleft-scan-reports
+          path: reports
           
   push-to-ecr:
     runs-on: ubuntu-latest
