@@ -69,6 +69,7 @@ const Item = () => {
   };
 
   const handleDateFormat = (isoString) => {
+    if (!isoString) return "Not scheduled";
     return dayjs(isoString).format("DD/MM/YYYY, HH:mm");
   };
 
@@ -79,8 +80,13 @@ const Item = () => {
   };
 
   const handleTimeslotDetails = async (transactionId) => {
-    const timeslot = await getTimeslotByTransaction(transactionId);
-    setTimeslotDetails(timeslot);
+    try {
+      const timeslot = await getTimeslotByTransaction(transactionId);
+      setTimeslotDetails(timeslot || {});
+    } catch (error) {
+      console.error("Error fetching timeslot details:", error);
+      setTimeslotDetails({});
+    }
   };
 
   const Loading = () => {
@@ -193,14 +199,18 @@ const Item = () => {
                           <p>
                             <strong>Buyer ID: </strong> <span>{transaction.buyerId || 'No Buyer Scheduled'}</span>
                           </p>
-                          <p>
-                            <strong>Start Date & Time: </strong>
-                            {handleDateFormat(timeslotDetails.startDateTime)}
-                          </p>
-                          <p>
-                            <strong>End Date & Time: </strong>
-                            {handleDateFormat(timeslotDetails.endDateTime)}
-                          </p>
+                          {timeslotDetails && (
+                            <>
+                              <p>
+                                <strong>Start Date & Time: </strong>
+                                {handleDateFormat(timeslotDetails.startDateTime)}
+                              </p>
+                              <p>
+                                <strong>End Date & Time: </strong>
+                                {handleDateFormat(timeslotDetails.endDateTime)}
+                              </p>
+                            </>
+                          )}
                           <p>
                             <strong>Location and Others: </strong>
                             {transaction.transactionLocation}

@@ -14,8 +14,8 @@ public interface TimeslotRepo extends MongoRepository<Timeslot, String> {
         {
          "_id": { "$ne": ?4 },
          "$or": [
-             { "transaction.buyerId": ?0 },
-             { "transaction.user.$id": ObjectId(?1) }
+             { "transaction.buyer._id": ?0 },
+             { "transaction.seller._id": ?1 }
          ],
          "startDateTime": { "$lt": ?3 },
          "endDateTime": { "$gt": ?2 }

@@ -45,23 +45,30 @@ export const createTimeslot = async (timeslotData, transactionId) => {
 };
 
 export const getTimeslotByTransaction = async (transactionId) => {
-  const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
 
-  if (!token) {
-    throw new Error("No authentication token found");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_URL}/timeslot/${transactionId}`, {
+      method: GET_METHOD,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to fetch timeslot");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching timeslot:", error);
+    return null;
   }
-
-  const response = await fetch(`${API_URL}/timeslot/${transactionId}`, {
-    method: GET_METHOD,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const data = await response.json();
-
-  console.log(data);
-
-  return data;
 };

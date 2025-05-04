@@ -20,16 +20,15 @@ public class TimeslotService {
     private AppointmentObserverManager appointmentObserver;
 
     public Timeslot createTimeslot(CreateTimeslotDTO timeslotDTO, Transaction transaction) {
-
-        String buyerId = transaction.getBuyerId();
-        String sellerId = transaction.getSeller().getId();
+        // For new timeslots, we only need to check seller's schedule since there's no buyer yet
         List<Timeslot> conflicts = repo.findConflictingTimeslots(
-                buyerId,
-                sellerId,
+                null, // no buyer yet for new timeslots
+                transaction.getSeller().getId(),
                 timeslotDTO.getStartDateTime(),
                 timeslotDTO.getEndDateTime(),
-                null
+                "" // Empty string for new timeslots
         );
+        
         if (!conflicts.isEmpty()) {
             throw new RuntimeException("Timeslot conflicts with an existing schedule");
         }
