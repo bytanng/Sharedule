@@ -196,7 +196,7 @@ public class UserController {
             String resetToken = userService.generatePasswordResetToken(resetRequest.getEmail());
 
             // URL subject to change when frontend reset page is done
-            String resetUrl = "http://localhost:3000/resetpassword/" + resetToken;
+            String resetUrl = "http://my-frontend-lb-1100890705.us-east-1.elb.amazonaws.com/resetpassword/" + resetToken;
             String subject = "Sharedule Account Password Reset Request";
             String body = "Click the following link to reset your password: " + resetUrl;
             emailService.sendEmail(resetRequest.getEmail(), subject, body);
