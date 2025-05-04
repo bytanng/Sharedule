@@ -3,12 +3,7 @@ package com.sharedule.app.controller.timeslot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.sharedule.app.dto.CreateTimeslotDTO;
 import com.sharedule.app.model.timeslot.Timeslot;
@@ -20,6 +15,8 @@ import com.sharedule.app.service.user.JWTService;
 import com.sharedule.app.service.user.UserService;
 
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class TimeslotController {
@@ -43,29 +40,31 @@ public class TimeslotController {
         try {
             // Validate token format
             if (token == null || !token.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
+                return createErrorResponse("Invalid token format", HttpStatus.UNAUTHORIZED);
             }
             // Extract and validate token
             String jwtToken = token.substring(7);
             if (jwtService.isTokenExpired(jwtToken)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+                return createErrorResponse("Token has expired", HttpStatus.UNAUTHORIZED);
             }
 
             // Get user from token
             Users user = userService.getUser(token);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+                return createErrorResponse("User not found", HttpStatus.UNAUTHORIZED);
             }
 
             Transaction transaction = transactionService.getTransaction(transactionId);
+            if (transaction == null) {
+                return createErrorResponse("Transaction not found", HttpStatus.NOT_FOUND);
+            }
 
-            // Create and save the transaction
             Timeslot savedTimeslot = timeslotService.createTimeslot(timeslot, transaction);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedTimeslot);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred while processing your request: " + e.getMessage());
+            return createErrorResponse("An unexpected error occurred: " + e.getMessage(), 
+                                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -76,27 +75,36 @@ public class TimeslotController {
         try {
             // Validate token format
             if (token == null || !token.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token format");
+                return createErrorResponse("Invalid token format", HttpStatus.UNAUTHORIZED);
             }
             // Extract and validate token
             String jwtToken = token.substring(7);
             if (jwtService.isTokenExpired(jwtToken)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+                return createErrorResponse("Token has expired", HttpStatus.UNAUTHORIZED);
             }
 
             // Get user from token
             Users user = userService.getUser(token);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+                return createErrorResponse("User not found", HttpStatus.UNAUTHORIZED);
             }
 
-            // Create and save the transaction
+            // Get timeslot
             Timeslot timeslotToByViewed = timeslotService.getTimeslotByTransactionId(transactionId);
-            return ResponseEntity.status(HttpStatus.OK).body(timeslotToByViewed);
+            if (timeslotToByViewed == null) {
+                return createErrorResponse("Timeslot not found", HttpStatus.NOT_FOUND);
+            }
 
+            return ResponseEntity.ok(timeslotToByViewed);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred while processing your request: " + e.getMessage());
+            return createErrorResponse("An unexpected error occurred: " + e.getMessage(),
+                                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private ResponseEntity<Map<String, String>> createErrorResponse(String message, HttpStatus status) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", message);
+        return ResponseEntity.status(status).body(response);
     }
 }
