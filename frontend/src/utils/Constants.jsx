@@ -1,4 +1,4 @@
-export const API_URL = ${{ secrets.BACKEND_URL }};;
+export const API_URL = ${{ secrets.BACKEND_URL }};
 
 export const POST_METHOD = 'POST';
 export const GET_METHOD = 'GET';
