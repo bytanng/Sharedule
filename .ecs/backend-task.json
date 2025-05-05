@@ -1,0 +1,18 @@
+{
+  "family": "backend-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "containerDefinitions": [
+    {
+      "name": "backend-container",
+      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_REPO}:latest",
+      "portMappings": [{ "containerPort": 8080 }],
+      "environment": [
+        { "name": "MONGO_ROOT_USER", "value": "${MONGO_ROOT_USER}" },
+        { "name": "MONGO_ROOT_PASSWORD", "value": "${MONGO_ROOT_PASSWORD}" }
+      ]
+    }
+  ]
+}

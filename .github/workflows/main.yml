@@ -1,0 +1,223 @@
+name: DevSecOps Build & Test Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  docker-build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      BACKEND_URL: ${{ secrets.BACKEND_URL }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set MongoDB environment variables
+        run: |
+          echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" >> $GITHUB_ENV
+          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> $GITHUB_ENV
+          
+      - name: Create .env file
+        run: |
+          echo "TESTING_URL=${{ secrets.TESTING_URL }}" > .env
+          echo "DEV_URL=${{ secrets.DEV_URL }}" >> .env
+          echo "PROD_URL=${{ secrets.PROD_URL }}" >> .env
+          echo "LOCAL_URL=${{ secrets.LOCAL_URL }}" >> .env
+          echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "AWS_S3_URL=${{ secrets.AWS_S3_URL }}" >> .env
+          echo "REACT_APP_API_URL=${{ secrets.API_URL }}" >> .env
+
+          
+      - name: Install Docker
+        run: |
+          sudo apt-get remove containerd.io
+          sudo apt install docker.io docker-compose -y
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Verify Docker installation
+        run: |
+          docker --version
+          docker-compose --version
+
+      - name: Install AWS Elastic Beanstalk CLI
+        run: |
+          pip install --upgrade --user awsebcli
+          export PATH=$PATH:$HOME/.local/bin
+
+      - name: Build Backend Image
+        run: |
+          docker build ./backend --file ./backend/Dockerfile --tag backend-image:$(date +%s)
+
+      - name: Build Frontend Image
+        run: |
+          docker build ./frontend --file ./frontend/Dockerfile --tag frontend-image:$(date +%s)
+          
+      - name: Verify current directory
+        run: |
+          pwd
+          ls -la
+
+      - name: Run Docker Compose with .env
+        run: |
+          docker-compose --env-file /home/runner/work/Sharedule/Sharedule/.env -f docker-compose.yml up -d
+        env:
+          TESTING_URL: ${{ secrets.TESTING_URL }}
+          DEV_URL: ${{ secrets.DEV_URL }}
+          PROD_URL: ${{ secrets.PROD_URL }}
+          LOCAL_URL: ${{ secrets.LOCAL_URL }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_URL: ${{ secrets.AWS_S3_URL }}          
+       
+      - name: Check if Backend Container is Running
+        run: |
+          docker ps -a
+
+      - name: Check docker logs
+        run: |
+          docker-compose logs backend
+
+      - name: Check Backend Logs
+        run: docker logs my-backend-container
+        
+      - name: Install curl in Backend Container
+        run: |
+          docker exec my-backend-container apt-get update
+          docker exec my-backend-container apt-get install -y 
+          
+      - name: Wait for MongoDB to Start
+        run: sleep 10
+
+      - name: Run Backend Unit Tests
+        run: |
+          docker exec my-backend-container mvn test
+
+
+      - name: Shut Down Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml down
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Perform ShiftLeft Scan
+        uses: ShiftLeftSecurity/scan-action@master
+        with:
+          type: "credscan,java,depscan"
+        env:
+          SCAN_OUTPUT: reports
+          SCAN_CREATE_BASELINE: true
+
+
+      - name: View Dependency Scan Report (JSON)
+        run: |
+          echo "Dependency Scan Findings:"
+          cat reports/depscan-report-universal.json
+
+      - name: Print baseline scan report
+        run: cat reports/.sastscan.baseline
+        
+      - name: Search for Secrets in Universal Report
+        run: |
+          echo "=== Searching for Secret Audit Findings ==="
+          if [ -f reports/depscan-report-universal.json ]; then
+            grep -iA 5 '"type": "secret"' reports/depscan-report-universal.json || echo "No secrets found in universal report"
+          else
+            echo "Universal report not found."
+          fi
+          
+      - name: Upload ShiftLeft Scan Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: shiftleft-scan-reports
+          path: reports
+          
+  push-to-ecr:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      BACKEND_REPO: ${{ secrets.BACKEND_REPO }}
+      FRONTEND_REPO: ${{ secrets.FRONTEND_REPO }}
+
+    steps:
+      - name: Install AWS EB CLI
+        run: |
+          pip install --upgrade pip
+          pip install awsebcli
+    
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+            | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Build and tag backend image
+        run: |
+          docker build ./backend -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$BACKEND_REPO:latest
+
+      - name: Build and tag frontend image
+        run: |
+          docker build ./frontend -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
+
+      - name: Push backend image
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$BACKEND_REPO:latest
+
+      - name: Push frontend image
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
+
+  
+  deploy-to-ecs:
+    needs: push-to-ecr
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+  
+      - name: Update backend ECS service
+        run: |
+          aws ecs update-service --cluster my-first-ecs-cluster --service backend-service --force-new-deployment
+  
+      - name: Update frontend ECS service
+        run: |
+          aws ecs update-service --cluster my-first-ecs-cluster --service frontend-task-service-4ke5elbd --force-new-deployment
+

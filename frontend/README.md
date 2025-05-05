@@ -1,4 +1,3 @@
-# Sharedule
 ## Run Locally
 
 Install dependencies
@@ -11,6 +10,11 @@ Start the server
 
 ```bash
   npm start
+```
+
+## Dockerization
+```
+  docker-compose up --build
 ```
 
 
