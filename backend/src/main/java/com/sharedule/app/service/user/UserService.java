@@ -6,6 +6,8 @@ import com.sharedule.app.exception.ExistsInRepoException;
 import com.sharedule.app.exception.ValidationException;
 import com.sharedule.app.dto.UserProfileUpdateDTO;
 import com.sharedule.app.dto.PasswordResetDTO;
+import com.sharedule.app.factory.AdminUserFactory;
+import com.sharedule.app.factory.RegularUserFactory;
 import com.sharedule.app.factory.UserFactory;
 import com.sharedule.app.model.user.AppUsers;
 import com.sharedule.app.model.user.Users;
@@ -33,6 +35,10 @@ public class UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
+    @Autowired
+    private UserFactory factory;
+
+
     public boolean emailExists(String email) {
         return repo.findByEmail(email) != null;
     }
@@ -41,46 +47,46 @@ public class UserService {
         System.out.println("DEBUG - Attempting to register user: " + userRegistrationDTO.getUsername());
 
         try {
-            // Validate username
+            // Validate fields
             ValidationUtil.validateUsername(userRegistrationDTO.getUsername());
-
-            // Validate email
             ValidationUtil.validateEmail(userRegistrationDTO.getEmail());
-
-            // Validate password
             ValidationUtil.validatePassword(userRegistrationDTO.getPassword());
 
-            // Check if username exists in repo
             if (repo.findByUsername(userRegistrationDTO.getUsername()) != null)
                 throw new ExistsInRepoException("Username is taken");
 
-            // Check if email exists
             if (repo.findByEmail(userRegistrationDTO.getEmail()) != null)
                 throw new ExistsInRepoException("Email is taken");
-        } catch (ValidationException ve) {
-            throw new BackendErrorException(ve);
-        } catch (ExistsInRepoException eire) {
-            throw new BackendErrorException(eire);
+
+        } catch (ValidationException | ExistsInRepoException ex) {
+            throw new BackendErrorException(ex);
         }
-        System.out.println("this is user dto");
-        System.out.println(userRegistrationDTO.toString());
+
         String role = userRegistrationDTO.getRole();
         String actualRole = (role != null) ? role : "USER";
-        // Use UserFactory to create a user
-        Users newUsers = UserFactory.createUser(
-                actualRole,
+
+        // Choose concrete factory based on role
+        UserFactory factory;
+        if ("ADMIN".equalsIgnoreCase(actualRole)) {
+            factory = new AdminUserFactory();
+        } else {
+            factory = new RegularUserFactory();
+        }
+
+        // Create user with factory
+        Users newUser = factory.createUser(
                 userRegistrationDTO.getUsername(),
                 userRegistrationDTO.getEmail(),
-                encoder.encode(userRegistrationDTO.getPassword()));
+                encoder.encode(userRegistrationDTO.getPassword())
+        );
 
+        // Save user
+        Users savedUser = repo.save(newUser);
+        System.out.println("DEBUG - Saved user: " + savedUser);
 
-        Users savedUser = repo.save(newUsers);  // Capture the returned object
-        System.out.println("DEBUG - Saved user: " + savedUser); // Log the saved object
-        System.out.println("This is going to register a new user" + newUsers.toString());
-
-        System.out.println("DEBUG - Successfully registered user: " + newUsers.getUsername());
         return "User successfully registered";
     }
+
 
     public String resetPassword(PasswordResetDTO passwordResetDTO, String email) {
         Users users = repo.findByEmail(email);
